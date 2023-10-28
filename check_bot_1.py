@@ -51,7 +51,7 @@ def instance_list():
         
         # Print information about each instance
         logging.info("Your Instances:")
-        for instance in instances:
+        for instance in data['instances']:
             logging.info("Instance ID: %s", instance['id'])
             logging.info("GPU Name: %s", instance['machine']['gpu_name'])
             logging.info("Dollars Per Hour (DPH): %s", instance['dph_total'])
