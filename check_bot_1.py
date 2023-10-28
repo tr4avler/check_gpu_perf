@@ -143,7 +143,7 @@ from prettytable import PrettyTable
 def print_table(data):
     # Define the table and its columns
     table = PrettyTable()
-    table.field_names = ["Instance ID", "GPU Name", "DPH", "Blocks", "Runtime (hours)", "Block/h", "Blocks/$"]
+    table.field_names = ["Instance ID", "GPU Name", "DPH", "Runtime (hours)", "Block/h", "Blocks/$"]
     
     # Add rows to the table
     for row in data:
@@ -168,7 +168,7 @@ table_data = []
 for ssh_info in ssh_info_list:
     instance_id = ssh_info['instance_id']
     gpu_name = ssh_info['gpu_name']
-    dph_total = float(ssh_info['dph_total'])  # Convert to float for calculation
+    dph_total = ssh_info['dph_total']
     ssh_host = ssh_info['ssh_host']
     ssh_port = ssh_info['ssh_port']
 
@@ -177,11 +177,9 @@ for ssh_info in ssh_info_list:
     
     if hours is not None:
         runtime_hours = hours + minutes / 60 + seconds / 3600
-        block_per_hour = normal_blocks / runtime_hours if runtime_hours != 0 else 0
-        blocks_per_dollar = normal_blocks / dph_total if dph_total != 0 else 0
         logging.info("Running Time: %d hours, %d minutes, %d seconds", hours, minutes, seconds)
         logging.info("Normal Blocks: %d", normal_blocks)
-        table_data.append([instance_id, gpu_name, dph_total, normal_blocks, round(runtime_hours, 2), round(block_per_hour, 2), round(blocks_per_dollar, 2)])
+        table_data.append([instance_id, gpu_name, dph_total, round(runtime_hours, 2), "", ""])
     else:
         logging.error("Failed to retrieve log information for instance ID: %s", instance_id)
 
