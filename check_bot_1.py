@@ -2,7 +2,7 @@ import requests
 import logging
 import paramiko
 import re
-from prettytable import PrettyTable
+import PrettyTable
 
 API_KEY_FILE = 'api_key.txt'
 
