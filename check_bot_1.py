@@ -102,11 +102,6 @@ def get_log_info(ssh_host, ssh_port, username):
         last_line = stdout.read().decode().strip()
         logging.info("Raw log line: %s", last_line)
         
-        # Check if "Details=normal:" is present in the last line
-        if "Details=normal" not in last_line:
-            logging.warning("Skipping last log line as 'Details=normal' is missing.")
-            return None, None, None, None
-            
         # Clean ANSI codes from the log line
         last_line = clean_ansi_codes(last_line)
         
