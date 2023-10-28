@@ -83,6 +83,10 @@ def clean_ansi_codes(input_string):
     ansi_escape = re.compile(r'\x1B[@-_][0-?]*[ -/]*[@-~]', re.IGNORECASE)
     return ansi_escape.sub('', input_string)
 
+import paramiko
+import re
+import logging
+
 def get_log_info(ssh_host, ssh_port, username):
     private_key_path = "/home/admin/.ssh/id_ed25519"
     
@@ -91,11 +95,15 @@ def get_log_info(ssh_host, ssh_port, username):
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     
     try:
+        logging.info("Attempting to connect to SSH server...")
+        
         # Load the private key
         key = paramiko.Ed25519Key(filename=private_key_path)
         
         # Connect to the server
         ssh.connect(ssh_host, port=ssh_port, username=username, pkey=key)
+        
+        logging.info("Connected to SSH server. Attempting to retrieve log info...")
         
         # Execute the command to get the log information
         _, stdout, _ = ssh.exec_command('tail -n 1 /root/XENGPUMiner/miner.log')
@@ -106,7 +114,7 @@ def get_log_info(ssh_host, ssh_port, username):
         last_line = clean_ansi_codes(last_line)
         
         # Parse the last line to get the required information
-        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*Details=normal:(\d+).*\]')
+        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*(?:Details=normal:(\d+))?.*')
         match = pattern.search(last_line)
         if match:
             # Extracting the running time and normal blocks
@@ -115,6 +123,8 @@ def get_log_info(ssh_host, ssh_port, username):
             # If Details=normal: is missing, assume 0
             if normal_blocks is None:
                 normal_blocks = 0
+            
+            logging.info("Parsed log line successfully.")
             return int(hours), int(minutes), int(seconds), int(normal_blocks)
         else:
             logging.error("Failed to parse the log line")
@@ -126,7 +136,8 @@ def get_log_info(ssh_host, ssh_port, username):
     
     finally:
         ssh.close()
- 
+
+
 
 from prettytable import PrettyTable
 def print_table(data):
