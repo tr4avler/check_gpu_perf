@@ -108,8 +108,8 @@ def get_log_info(ssh_host, ssh_port, username):
             # Extracting the running time (hours) and normal blocks
             running_time = int(match.group(1))
             normal_blocks = int(match.group(2))
-            logging.info("Running Time (hours): %d", running_time)
-            logging.info("Normal Blocks: %d", normal_blocks)
+            
+            return running_time, normal_blocks
         else:
             logging.error("Failed to parse the log line")
             return None, None
