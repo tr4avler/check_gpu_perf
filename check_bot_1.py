@@ -78,7 +78,7 @@ def instance_list():
     return ssh_info_list
 
 def clean_ansi_codes(input_string):
-    ansi_escape = re.compile(r'(?:\x1b\[|\x1b\])[^0-9a-zA-Z]*[0-9a-zA-Z]', re.IGNORECASE)
+    ansi_escape = re.compile(r'\x1B[@-_][0-?]*[ -/]*[@-~]', re.IGNORECASE)
     return ansi_escape.sub('', input_string)
 
 def get_log_info(ssh_host, ssh_port, username):
