@@ -79,7 +79,7 @@ def instance_list():
 
 def clean_ansi_codes(input_string):
     ansi_escape = re.compile(r'(?:\x1b\[|\x1b\])[^0-9a-zA-Z]*[0-9a-zA-Z]', re.IGNORECASE)
-    return text
+    return ansi_escape.sub('', input_string)
 
 def get_log_info(ssh_host, ssh_port, username):
     private_key_path = "/home/admin/.ssh/id_ed25519"
