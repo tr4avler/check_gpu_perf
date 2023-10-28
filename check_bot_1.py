@@ -101,22 +101,25 @@ def get_log_info(ssh_host, ssh_port, username):
         logging.info("Raw log line: %s", last_line)
         last_line = clean_ansi_codes(last_line)
         
-        # Extract running time and normal blocks using regex
-        running_time_match = re.search(r'\[(\d+):(\d+):(\d+)', last_line)
-        normal_blocks_match = re.search(r'Details=normal:(\d+)', last_line)
+        # Parse the last line to get the required information
+        time_running = last_line.split('[')[1].split(',')[0].strip()
+        blocks_info = last_line.split('Details=')[1].split(',')[0].strip()
+        normal_blocks = blocks_info.split(':')[1].split(' ')[0]
         
-        if running_time_match and normal_blocks_match:
-            hours, minutes, seconds = map(int, running_time_match.groups())
-            total_hours = hours + minutes / 60 + seconds / 3600
-            total_hours = round(total_hours, 2)  # Keep two decimal places
-            normal_blocks = normal_blocks_match.group(1)
-            return total_hours, normal_blocks
-        else:
-            logging.error("Failed to parse log line. Log line: %s", last_line)
+        # Convert time running to total hours
+        time_parts = time_running.split(':')
+        try:
+            total_hours = int(time_parts[0]) + int(time_parts[1]) / 60 + int(time_parts[2]) / 3600
+        except ValueError as ve: 
+            logging.error("Failed to convert time parts to integer. Time parts: %s. Error: %s", time_parts, ve)
             return None, None
+        total_hours = round(total_hours)
         
+        return total_hours, normal_blocks
+        
+    
     except Exception as e:
-        logging.error("Failed to connect or retrieve log info: %s", e)
+        print("Failed to connect or retrieve log info:", e)
         return None, None
     
     finally:
