@@ -136,7 +136,7 @@ from prettytable import PrettyTable
 def print_table(data):
     # Define the table and its columns
     table = PrettyTable()
-    table.field_names = ["Instance ID", "GPU Name", "DPH", "XNM Blocks", "Runtime (hours)", "Block/h", "Blocks/$"]
+    table.field_names = ["Instance ID", "GPU Name", "DPH", "XNM Blocks", "Runtime (hours)", "Block/h", "$/Blocks"]
     
     # Add rows to the table
     for row in data:
