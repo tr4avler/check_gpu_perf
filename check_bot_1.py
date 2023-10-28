@@ -35,20 +35,19 @@ def test_api_connection():
 
 def instance_list():
     """Function to list instances."""
-    url = 'https://vast.ai/api/v0/instances/'
-    headers = {'Accept': 'application/json', 'Authorization': 'ApiKey ' + api_key}
-    params = {'user': 'self'}  # To get instances belonging to the authenticated user
-    response = requests.get(url, headers=headers, params=params)
+    url = f'https://console.vast.ai/api/v0/instances/?api_key={api_key}'
+    headers = {'Accept': 'application/json'}
+    response = requests.get(url, headers=headers)
     if response.status_code == 200:
         response_json = response.json()
         logging.info("Full JSON Response: %s", response_json)
         
-        # If the 'results' key is not in the response, log an error
-        if 'results' not in response_json:
-            logging.error("'results' key not found in response. Please check the API documentation for the correct structure.")
+        # If the 'instances' key is not in the response, log an error
+        if 'instances' not in response_json:
+            logging.error("'instances' key not found in response. Please check the API documentation for the correct structure.")
             return
         
-        instances = response_json['results']
+        instances = response_json['instances']
         
         # Print information about each instance
         logging.info("Your Instances:")
@@ -64,6 +63,7 @@ def instance_list():
             logging.info("-" * 30)
     else:
         logging.error("Failed to retrieve instances. Status code: %s. Response: %s", response.status_code, response.text)
+
 
 
 # Test API Connection
