@@ -2,7 +2,6 @@ import requests
 import logging
 import paramiko
 import re
-import prettytable 
 
 API_KEY_FILE = 'api_key.txt'
 
@@ -122,7 +121,9 @@ def get_log_info(ssh_host, ssh_port, username):
     
     finally:
         ssh.close()
-        
+ 
+
+from prettytable import PrettyTable
 def print_table(data):
     # Define the table and its columns
     table = PrettyTable()
