@@ -98,7 +98,6 @@ def get_log_info(ssh_host, ssh_port, username):
         # Execute the command to get the log information
         _, stdout, _ = ssh.exec_command('tail -n 1 /root/XENGPUMiner/miner.log')
         last_line = stdout.read().decode().strip()
-        logging.info("Raw log line: %s", last_line)
         
         # Clean ANSI codes from the log line
         last_line = clean_ansi_codes(last_line)
