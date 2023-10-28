@@ -114,7 +114,8 @@ def get_log_info(ssh_host, ssh_port, username):
             
             return hours, minutes, seconds, normal_blocks
         else:
-            logging.error("Failed to parse the log line")
+            # If 'Details=normal:' is missing, log a warning and return None values
+            logging.warning("Details=normal: is missing in the log line for instance. Skipping to next instance.")
             return None, None, None, None
         
     except Exception as e:
@@ -159,7 +160,7 @@ for ssh_info in ssh_info_list:
 
     logging.info("Fetching log info for instance ID: %s", instance_id)
     hours, minutes, seconds, normal_blocks = get_log_info(ssh_host, ssh_port, username)
-    
+
     if normal_blocks is not None:
         total_hours = hours + minutes / 60 + seconds / 3600
         logging.info("Running Time: %d hours, %d minutes, %d seconds", hours, minutes, seconds)
@@ -171,3 +172,4 @@ for ssh_info in ssh_info_list:
 
 # Print the table
 print_table(table_data)
+
