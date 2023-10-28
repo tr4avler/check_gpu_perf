@@ -77,6 +77,10 @@ def instance_list():
 
     return ssh_info_list
 
+def clean_ansi_codes(input_string):
+    ansi_escape = re.compile(r'(?:\x1b\[|\x1b\])[^0-9a-zA-Z]*[0-9a-zA-Z]', re.IGNORECASE)
+    return ansi_escape.sub('', input_string)
+
 def get_log_info(ssh_host, ssh_port, username):
     private_key_path = "/home/admin/.ssh/id_ed25519"
     
@@ -94,6 +98,7 @@ def get_log_info(ssh_host, ssh_port, username):
         # Execute the command to get the log information
         _, stdout, _ = ssh.exec_command('tail -n 1 /root/XENGPUMiner/miner.log')
         last_line = stdout.read().decode().strip()
+        last_line = clean_ansi_codes(last_line)
         
         # Parse the last line to get the required information
         time_running = last_line.split('[')[1].split(',')[0].strip()
@@ -102,10 +107,15 @@ def get_log_info(ssh_host, ssh_port, username):
         
         # Convert time running to total hours
         time_parts = time_running.split(':')
-        total_hours = int(time_parts[0]) + int(time_parts[1]) / 60 + int(time_parts[2]) / 3600
+        try:
+            total_hours = int(time_parts[0]) + int(time_parts[1]) / 60 + int(time_parts[2]) / 3600
+        except ValueError as ve: 
+            logging.error("Failed to convert time parts to integer. Time parts: %s. Error: %s", time_parts, ve)
+            return None, None
         total_hours = round(total_hours)
         
         return total_hours, normal_blocks
+        
     
     except Exception as e:
         print("Failed to connect or retrieve log info:", e)
