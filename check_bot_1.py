@@ -123,7 +123,6 @@ def get_log_info(ssh_host, ssh_port, username):
     finally:
         ssh.close()
 
-
 # Test API Connection
 test_api_connection()
 
