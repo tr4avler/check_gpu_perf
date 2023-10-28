@@ -50,11 +50,11 @@ def instance_list():
         logging.info("Your Instances:")
         for instance in instances:
             logging.info("Instance ID: %s", instance.get('id', 'N/A'))
-            logging.info("GPU Name: %s", instance.get('gpu_name', 'N/A')) 
+            logging.info("GPU Name: %s", instance.get('gpu_name', 'N/A'))
             logging.info("Dollars Per Hour (DPH): %s", instance.get('dph_total', 'N/A'))
-            logging.info("SSH Information:")
-            logging.info("  SSH: %s", instance.get('ssh_host', 'N/A'))
-            logging.info("  Port: %s", instance.get('ssh_port', 'N/A'))
+            ssh_host = instance.get('ssh_host', 'N/A')
+            ssh_port = instance.get('ssh_port', 'N/A')
+            logging.info("SSH Command: ssh -p %s root@%s -L 8080:localhost:8080", ssh_port, ssh_host)
             logging.info("-" * 30)
     else:
         logging.error("Failed to retrieve instances. Status code: %s. Response: %s", response.status_code, response.text)
