@@ -95,10 +95,10 @@ def get_log_info(ssh_host, ssh_port, username):
         key = paramiko.Ed25519Key(filename=private_key_path)
         
         # Connect to the server
-        ssh.connect(ssh_host, port=ssh_port, username=username, pkey=key)
+        ssh.connect(ssh_host, port=ssh_port, username=username, pkey=key, timeout=10)
         
         # Execute the command to get the log information
-        _, stdout, _ = ssh.exec_command('tail -n 1 /root/XENGPUMiner/miner.log')
+        _, stdout, _ = ssh.exec_command('tail -n 1 /root/XENGPUMiner/miner.log', timeout=10)
         last_line = stdout.read().decode().strip()
         logging.info("Raw log line: %s", last_line)
         
@@ -106,26 +106,24 @@ def get_log_info(ssh_host, ssh_port, username):
         last_line = clean_ansi_codes(last_line)
         
         # Parse the last line to get the required information
-        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*(?:Details=normal:(\d+))?.*]')
+        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+).*Details=normal:(\d+)')
         match = pattern.search(last_line)
         if match:
-            # Extracting the running time
-            hours, minutes, seconds = map(int, match.groups()[:3])
-            
-            # Extracting normal blocks if present, otherwise default to 0
-            normal_blocks = int(match.group(4)) if match.group(4) is not None else 0
-            
+            # Extracting the running time and normal blocks
+            hours, minutes, seconds, normal_blocks = map(int, match.groups())
             return hours, minutes, seconds, normal_blocks
         else:
-            logging.error("Failed to parse the log line")
+            logging.error("Failed to parse the log line or 'normal' is missing")
             return None, None, None, None
+        
+    except paramiko.SSHException as e:
+        logging.error("SSH Exception: %s", e)
+        return None, None, None, None
     except Exception as e:
         logging.error("Failed to connect or retrieve log info: %s", e)
         return None, None, None, None
-    
     finally:
         ssh.close()
-
 
 from prettytable import PrettyTable      
 def print_table(data):
