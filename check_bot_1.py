@@ -98,20 +98,19 @@ def get_log_info(ssh_host, ssh_port, username):
         # Execute the command to get the log information
         _, stdout, _ = ssh.exec_command('tail -n 1 /root/XENGPUMiner/miner.log')
         last_line = stdout.read().decode().strip()
-        last_line = clean_ansi_codes(last_line)
         logging.info("Raw log line: %s", last_line)
         
+        # Clean ANSI codes from the log line
+        last_line = clean_ansi_codes(last_line)
+        
         # Parse the last line to get the required information
-        pattern = re.compile(r'Mining: \d+ Blocks \[(\d+):(\d+):(\d+),.*Details=normal:(\d+).*\]')
+        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*Details=normal:(\d+).*\]')
         match = pattern.search(last_line)
         if match:
-            # Extracting the running time (hours, minutes, and seconds) and normal blocks
-            running_hours = int(match.group(1))
-            running_minutes = int(match.group(2))
-            running_seconds = int(match.group(3))
-            normal_blocks = int(match.group(4))
+            # Extracting the running time and normal blocks
+            hours, minutes, seconds, normal_blocks = map(int, match.groups())
             
-            return running_hours, running_minutes, running_seconds, normal_blocks
+            return hours, minutes, seconds, normal_blocks
         else:
             logging.error("Failed to parse the log line")
             return None, None, None, None
@@ -122,6 +121,7 @@ def get_log_info(ssh_host, ssh_port, username):
     
     finally:
         ssh.close()
+
 
 # Test API Connection
 test_api_connection()
@@ -139,9 +139,12 @@ for ssh_info in ssh_info_list:
     logging.info("Fetching log info for instance ID: %s", instance_id)
     hours, minutes, seconds, normal_blocks = get_log_info(ssh_host, ssh_port, username)
     
-    if hours is not None and minutes is not None and seconds is not None and normal_blocks is not None:
-        logging.info("Running Time: %d hours, %d minutes, %d seconds", hours, minutes, seconds)
+    total_hours, total_minutes, total_seconds, normal_blocks = get_log_info(ssh_host, ssh_port, username)
+
+    if total_hours is not None:
+        logging.info("Running Time: %d hours, %d minutes, %d seconds", total_hours, total_minutes, total_seconds)
         logging.info("Normal Blocks: %d", normal_blocks)
     else:
         logging.error("Failed to retrieve log information for instance ID: %s", instance_id)
+
 
