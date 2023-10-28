@@ -110,14 +110,16 @@ def get_log_info(ssh_host, ssh_port, username):
         time_parts = time_running.split(':')
         try:
             total_hours = int(time_parts[0]) + int(time_parts[1]) / 60 + int(time_parts[2]) / 3600
+            total_hours = int(total_hours)  # Convert to integer to truncate the decimal part
         except ValueError as ve: 
             logging.error("Failed to convert time parts to integer. Time parts: %s. Error: %s", time_parts, ve)
             return None, None
+        
         return total_hours, normal_blocks
         
     
     except Exception as e:
-        print("Failed to connect or retrieve log info:", e)
+        logging.error("Failed to connect or retrieve log info: %s", e)
         return None, None
     
     finally:
@@ -141,7 +143,7 @@ for ssh_info in ssh_info_list:
     total_hours, normal_blocks = get_log_info(ssh_host, ssh_port, username)
     
     if total_hours is not None and normal_blocks is not None:
-        logging.info("Running Time (hours): %.2f", total_hours)
+        logging.info("Running Time (hours): %d", total_hours)
         logging.info("Normal Blocks: %d", normal_blocks)
     else:
         logging.error("Failed to retrieve log information for instance ID: %s", instance_id)
