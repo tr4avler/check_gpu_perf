@@ -72,7 +72,7 @@ def instance_list():
                 'ssh_host': ssh_host,
                 'ssh_port': ssh_port
             }
-            ssh_info_list.append(ssh_info)            
+            ssh_info_list.append(ssh_info)
 
     else:
         logging.error("Failed to retrieve instances. Status code: %s. Response: %s", response.status_code, response.text)
@@ -83,10 +83,6 @@ def clean_ansi_codes(input_string):
     ansi_escape = re.compile(r'\x1B[@-_][0-?]*[ -/]*[@-~]', re.IGNORECASE)
     return ansi_escape.sub('', input_string)
 
-import paramiko
-import re
-import logging
-
 def get_log_info(ssh_host, ssh_port, username):
     private_key_path = "/home/admin/.ssh/id_ed25519"
     
@@ -95,15 +91,11 @@ def get_log_info(ssh_host, ssh_port, username):
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     
     try:
-        logging.info("Attempting to connect to SSH server...")
-        
         # Load the private key
         key = paramiko.Ed25519Key(filename=private_key_path)
         
         # Connect to the server
         ssh.connect(ssh_host, port=ssh_port, username=username, pkey=key)
-        
-        logging.info("Connected to SSH server. Attempting to retrieve log info...")
         
         # Execute the command to get the log information
         _, stdout, _ = ssh.exec_command('tail -n 1 /root/XENGPUMiner/miner.log')
@@ -114,7 +106,7 @@ def get_log_info(ssh_host, ssh_port, username):
         last_line = clean_ansi_codes(last_line)
         
         # Parse the last line to get the required information
-        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*(?:Details=normal:(\d+))?.*')
+        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*Details=normal:(\d+).*\]')
         match = pattern.search(last_line)
         if match:
             # Extracting the running time and normal blocks
@@ -132,13 +124,11 @@ def get_log_info(ssh_host, ssh_port, username):
     finally:
         ssh.close()
 
-
-
-from prettytable import PrettyTable
+from prettytable import PrettyTable      
 def print_table(data):
     # Define the table and its columns
     table = PrettyTable()
-    table.field_names = ["Instance ID", "GPU Name", "DPH", "Blocks", "Runtime (hours)", "Block/h", "Blocks/$"]
+    table.field_names = ["Instance ID", "GPU Name", "DPH", "Runtime (hours)", "Block/h", "Blocks/$"]
     
     # Add rows to the table
     for row in data:
@@ -162,21 +152,21 @@ table_data = []
 # Fetch Log Information for Each Instance
 for ssh_info in ssh_info_list:
     instance_id = ssh_info['instance_id']
-    gpu_name = ssh_info['gpu_name']
-    dph_total = float(ssh_info['dph_total'])  # Convert to float for calculation
+    gpu_name = ssh_info['gpu_name']  # Corrected this line
+    dph_total = ssh_info['dph_total']  # Corrected this line
     ssh_host = ssh_info['ssh_host']
     ssh_port = ssh_info['ssh_port']
 
     logging.info("Fetching log info for instance ID: %s", instance_id)
     hours, minutes, seconds, normal_blocks = get_log_info(ssh_host, ssh_port, username)
     
-    if hours is not None:
-        runtime_hours = hours + minutes / 60 + seconds / 3600
-        block_per_hour = normal_blocks / runtime_hours if runtime_hours != 0 else 0
-        blocks_per_dollar = normal_blocks / dph_total if dph_total != 0 else 0
-        logging.info("Running Time: %d hours, %d minutes, %d seconds", hours, minutes, seconds)
+    total_hours, total_minutes, total_seconds, normal_blocks = get_log_info(ssh_host, ssh_port, username)
+
+    if total_hours is not None:
+        runtime_hours = total_hours + total_minutes / 60 + total_seconds / 3600
+        logging.info("Running Time: %d hours, %d minutes, %d seconds", total_hours, total_minutes, total_seconds)
         logging.info("Normal Blocks: %d", normal_blocks)
-        table_data.append([instance_id, gpu_name, dph_total, normal_blocks, round(runtime_hours, 2), round(block_per_hour, 2), round(blocks_per_dollar, 2)])
+        table_data.append([instance_id, gpu_name, dph_total, round(runtime_hours, 2), "", ""])
     else:
         logging.error("Failed to retrieve log information for instance ID: %s", instance_id)
 
