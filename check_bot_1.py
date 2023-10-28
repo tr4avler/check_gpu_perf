@@ -161,7 +161,7 @@ table_data = []
 for ssh_info in ssh_info_list:
     instance_id = ssh_info['instance_id']
     gpu_name = ssh_info['gpu_name']
-    dph_total = ssh_info['dph_total']
+    dph_total = float(ssh_info['dph_total'])  # Convert DPH to float for calculations
     ssh_host = ssh_info['ssh_host']
     ssh_port = ssh_info['ssh_port']
 
@@ -175,9 +175,14 @@ for ssh_info in ssh_info_list:
 
         # Calculate Block/h and handle the case when runtime is zero
         block_per_hour = normal_blocks / runtime_hours if runtime_hours != 0 else 0
-        table_data.append([instance_id, gpu_name, dph_total, normal_blocks, round(runtime_hours, 2), round(block_per_hour, 2), ""])
+
+        # Calculate Blocks/$ and handle the case when the number of blocks is zero
+        blocks_per_dollar = (runtime_hours * dph_total) / normal_blocks if normal_blocks != 0 else 0
+        
+        table_data.append([instance_id, gpu_name, dph_total, normal_blocks, round(runtime_hours, 2), round(block_per_hour, 2), round(blocks_per_dollar, 2)])
     else:
         logging.error("Failed to retrieve log information for instance ID: %s", instance_id)
+
 
 
 # Print the table
