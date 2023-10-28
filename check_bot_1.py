@@ -52,14 +52,17 @@ def instance_list():
         # Print information about each instance
         logging.info("Your Instances:")
         for instance in instances:
-            logging.info("Instance ID: %s", instance['id'])
-            logging.info("GPU Name: %s", instance['machine']['gpu_name'])
-            logging.info("Dollars Per Hour (DPH): %s", instance['dph_total'])
+            logging.info("Instance ID: %s", instance.get('id', 'N/A'))
+            if 'machine' in instance and 'gpu_name' in instance['machine']:
+               logging.info("GPU Name: %s", instance['machine']['gpu_name'])
+            else:
+                logging.info("GPU Name: N/A")
+            logging.info("Dollars Per Hour (DPH): %s", instance.get('dph_total', 'N/A'))
             logging.info("SSH Information:")
-            logging.info("  Host: %s", instance['ssh_host'])
-            logging.info("  Port: %s", instance['ssh_port'])
-            logging.info("  Username: %s", instance['ssh_username'])
-            logging.info("  Password: %s", instance['ssh_password'])
+            logging.info("  Host: %s", instance.get('ssh_host', 'N/A'))
+            logging.info("  Port: %s", instance.get('ssh_port', 'N/A'))
+            logging.info("  Username: %s", instance.get('ssh_username', 'N/A'))
+            logging.info("  Password: %s", instance.get('ssh_password', 'N/A'))
             logging.info("-" * 30)
     else:
         logging.error("Failed to retrieve instances. Status code: %s. Response: %s", response.status_code, response.text)
