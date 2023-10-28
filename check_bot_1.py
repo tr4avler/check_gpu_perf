@@ -102,27 +102,21 @@ def get_log_info(ssh_host, ssh_port, username):
         last_line = clean_ansi_codes(last_line)
         
         # Parse the last line to get the required information
-        pattern = re.compile(r'Mining: (\d+) Blocks \[(\d+):(\d+):(\d+).*?Details=normal:(\d+).*\]')
+        pattern = re.compile(r'Mining: \d+ Blocks \[(\d+):\d+:\d+,.*Details=normal:(\d+).*\]')
         match = pattern.search(last_line)
         if match:
-            # Extracting the running time (hours) and normal blocks
-            blocks = int(match.group(1))
-            hours = int(match.group(2))
-            minutes = int(match.group(3))
-            seconds = int(match.group(4))
-            normal_blocks = int(match.group(5))
+            # Extracting the running time and normal blocks
+            running_time = int(match.group(1))
+            normal_blocks = int(match.group(2))
             
-            # Calculating the total running time in hours
-            total_hours = hours + minutes / 60 + seconds / 3600
-            
-            return round(total_hours), normal_blocks, blocks
+            return running_time, normal_blocks
         else:
             logging.error("Failed to parse the log line")
-            return None, None, None
+            return None, None
         
     except Exception as e:
         logging.error("Failed to connect or retrieve log info: %s", e)
-        return None, None, None
+        return None, None
     
     finally:
         ssh.close()
@@ -141,12 +135,10 @@ for ssh_info in ssh_info_list:
     ssh_port = ssh_info['ssh_port']
 
     logging.info("Fetching log info for instance ID: %s", instance_id)
-    total_hours, normal_blocks, blocks = get_log_info(ssh_host, ssh_port, username)
+    total_hours, normal_blocks = get_log_info(ssh_host, ssh_port, username)
     
     if total_hours is not None and normal_blocks is not None:
-        logging.info("Running Time (hours): %s", total_hours)
+        logging.info("Running Time (hours): %d", total_hours)
         logging.info("Normal Blocks: %d", normal_blocks)
-        logging.info("Blocks: %d", blocks)
     else:
         logging.error("Failed to retrieve log information for instance ID: %s", instance_id)
-
