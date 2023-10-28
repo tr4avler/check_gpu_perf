@@ -102,7 +102,7 @@ def get_log_info(ssh_host, ssh_port, username):
         last_line = clean_ansi_codes(last_line)
         
         # Parse the last line to get the required information
-        pattern = re.compile(r'Mining: \d+ Blocks \[(\d+):\d+:\d+.*?Details=normal:(\d+).*\]')
+        pattern = re.compile(r'Mining: \d+ Blocks \[(\d+):\d+:\d+.*?Details=normal:(\d+).*', re.DOTALL)
         match = pattern.search(last_line)
         if match:
             # Extracting the running time (hours) and normal blocks
@@ -140,5 +140,7 @@ for ssh_info in ssh_info_list:
     if total_hours is not None and normal_blocks is not None:
         logging.info("Running Time (hours): %s", total_hours)
         logging.info("Normal Blocks: %d", normal_blocks)
+        logging.debug("Captured Running Time (hours): %s", total_hours)
+        logging.debug("Captured Normal Blocks: %d", normal_blocks)
     else:
         logging.error("Failed to retrieve log information for instance ID: %s", instance_id)
