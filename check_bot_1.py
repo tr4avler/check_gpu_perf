@@ -1,44 +1,64 @@
 import requests
+import logging
 
-def get_api_key(file_path='api_key.txt'):
+API_KEY_FILE = 'api_key.txt'
+
+# Logging Configuration
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s',
+                    handlers=[logging.FileHandler("script_output.log"),
+                              logging.StreamHandler()])
+
+# Load API Key
+try:
+    with open(API_KEY_FILE, 'r') as file:
+        api_key = file.read().strip()
+except FileNotFoundError:
+    logging.error(f"API key file '{API_KEY_FILE}' not found.")
+    exit(1)
+except Exception as e:
+    logging.error(f"Error reading API key: {e}")
+    exit(1)
+
+# Define Functions
+def test_api_connection():
+    """Function to test the API connection."""
+    test_url = "https://console.vast.ai/api/v0/"
     try:
-        with open(file_path, 'r') as file:
-            return file.read().strip()
-    except FileNotFoundError:
-        print(f"The file {file_path} was not found.")
-        return None
+        response = requests.get(test_url, headers={"Accept": "application/json"})
+        if response.status_code == 200:
+            logging.info("Connection with API established and working fine.")
+        else:
+            logging.error(f"Error connecting to API. Status code: {response.status_code}. Response: {response.text}")
     except Exception as e:
-        print(f"An error occurred: {str(e)}")
-        return None
+        logging.error(f"Error connecting to API: {e}")
 
-# Get the API key from the text file
-api_key = get_api_key()
-
-if api_key:
-    # Define the endpoint URL
+def instance_list():
+    """Function to list instances."""
     url = 'https://vast.ai/api/v0/instances?api_key={api_key}'
-    headers = {'Accept': 'application/json'}
-    params = {
-        'user': 'self'  # To get instances belonging to the authenticated user
-    }
+    headers = {'Accept': 'application/json', 'Authorization': 'ApiKey ' + api_key}
+    params = {'user': 'self'}  # To get instances belonging to the authenticated user
     response = requests.get(url, headers=headers, params=params)
     if response.status_code == 200:
-        instances = response.json()
+        instances = response.json()['results']
         
         # Print information about each instance
-        print("Your Instances:")
+        logging.info("Your Instances:")
         for instance in instances:
-            print("Instance ID:", instance['id'])
-            print("GPU Name:", instance['machine']['gpu_name'])
-            print("Dollars Per Hour (DPH):", instance['dph_total'])
-            print("SSH Information:")
-            print("  Host:", instance['ssh_host'])
-            print("  Port:", instance['ssh_port'])
-            print("  Username:", instance['ssh_username'])
-            print("  Password:", instance['ssh_password'])
-            print("-" * 30)
+            logging.info("Instance ID: %s", instance['id'])
+            logging.info("GPU Name: %s", instance['machine']['gpu_name'])
+            logging.info("Dollars Per Hour (DPH): %s", instance['dph_total'])
+            logging.info("SSH Information:")
+            logging.info("  Host: %s", instance['ssh_host'])
+            logging.info("  Port: %s", instance['ssh_port'])
+            logging.info("  Username: %s", instance['ssh_username'])
+            logging.info("  Password: %s", instance['ssh_password'])
+            logging.info("-" * 30)
     else:
-        print("Failed to retrieve instances. Status code:", response.status_code)
-else:
-    print("API key could not be retrieved.")
+        logging.error("Failed to retrieve instances. Status code: %s. Response: %s", response.status_code, response.text)
 
+# Test API Connection
+test_api_connection()
+
+# List Instances
+instance_list()
