@@ -102,29 +102,24 @@ def get_log_info(ssh_host, ssh_port, username):
         last_line = clean_ansi_codes(last_line)
         
         # Parse the last line to get the required information
-        time_running = last_line.split('[')[1].split(',')[0].strip()
-        blocks_info = last_line.split('Details=')[1].split(',')[0].strip()
-        normal_blocks = blocks_info.split(':')[1].split(' ')[0]
-        
-        # Convert time running to total hours
-        time_parts = time_running.split(':')
-        try:
-            total_hours = int(time_parts[0]) + int(time_parts[1]) / 60 + int(time_parts[2]) / 3600
-            total_hours = int(total_hours)  # Convert to integer to truncate the decimal part
-        except ValueError as ve: 
-            logging.error("Failed to convert time parts to integer. Time parts: %s. Error: %s", time_parts, ve)
+        pattern = re.compile(r'Mining: \d+ Blocks \[(\d+):\d+:\d+,.*Details=normal:(\d+).*\]')
+        match = pattern.search(last_line)
+        if match:
+            # Extracting the running time (hours) and normal blocks
+            running_time = match.group(1)
+            normal_blocks = int(match.group(2))
+            
+            return running_time, normal_blocks
+        else:
+            logging.error("Failed to parse the log line")
             return None, None
         
-        return total_hours, normal_blocks
-        
-    
     except Exception as e:
         logging.error("Failed to connect or retrieve log info: %s", e)
         return None, None
     
     finally:
         ssh.close()
-
 
 # Test API Connection
 test_api_connection()
@@ -143,7 +138,7 @@ for ssh_info in ssh_info_list:
     total_hours, normal_blocks = get_log_info(ssh_host, ssh_port, username)
     
     if total_hours is not None and normal_blocks is not None:
-        logging.info("Running Time (hours): %d", total_hours)
+        logging.info("Running Time (hours): %s", total_hours)
         logging.info("Normal Blocks: %d", normal_blocks)
     else:
         logging.error("Failed to retrieve log information for instance ID: %s", instance_id)
