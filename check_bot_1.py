@@ -102,18 +102,14 @@ def get_log_info(ssh_host, ssh_port, username):
         last_line = clean_ansi_codes(last_line)
         
         # Parse the last line to get the required information
-        pattern = re.compile(r'Mining: \d+ Blocks \[(\d+):(\d+):(\d+),.*Details=normal:(\d+).*\]')
+        pattern = re.compile(r'.*[(\d+),.*Details=normal:(\d+).*\]')
         match = pattern.search(last_line)
         if match:
             # Extracting the running time and normal blocks
-            running_hours = int(match.group(1))
-            running_minutes = int(match.group(2))
-            running_seconds = int(match.group(3))
-            normal_blocks = int(match.group(4))
+            running_time = int(match.group(1))
+            normal_blocks = int(match.group(2))
             
-            total_running_time = running_hours + (running_minutes / 60) + (running_seconds / 3600)
-            
-            return total_running_time, normal_blocks
+            return running_time, normal_blocks
         else:
             logging.error("Failed to parse the log line")
             return None, None
@@ -124,7 +120,6 @@ def get_log_info(ssh_host, ssh_port, username):
     
     finally:
         ssh.close()
-
 
 # Test API Connection
 test_api_connection()
