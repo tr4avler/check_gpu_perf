@@ -16,24 +16,13 @@ api_key = get_api_key()
 
 if api_key:
     # Define the endpoint URL
-    url = 'https://vast.ai/api/v0/instances/'
-
-    # Define the headers, including the API key for authentication
-    headers = {
-        'Authorization': 'ApiKey ' + api_key
-    }
-
-    # Define the query parameters
+    url = 'https://vast.ai/api/v0/instances?api_key={api_key}'
+    headers = {'Accept': 'application/json'}
     params = {
         'user': 'self'  # To get instances belonging to the authenticated user
     }
-
-    # Make the GET request
     response = requests.get(url, headers=headers, params=params)
-
-    # Check if the request was successful
     if response.status_code == 200:
-        # Parse the JSON response
         instances = response.json()
         
         # Print information about each instance
@@ -52,3 +41,4 @@ if api_key:
         print("Failed to retrieve instances. Status code:", response.status_code)
 else:
     print("API key could not be retrieved.")
+
