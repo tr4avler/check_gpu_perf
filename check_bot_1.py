@@ -102,14 +102,12 @@ def get_log_info(ssh_host, ssh_port, username):
         last_line = clean_ansi_codes(last_line)
         
         # Parse the last line to get the required information
-        pattern = re.compile(r'Mining: \d+ Blocks \[(\d+):\d{2}:\d{2},.*Details=normal:(\d+).*\]')
+        pattern = re.compile(r'Mining: \d+ Blocks \[(\d+):\d+:\d+,.*Details=normal:(\d+).*\]')
         match = pattern.search(last_line)
         if match:
             # Extracting the running time and normal blocks
             running_time = int(match.group(1))
             normal_blocks = int(match.group(2))
-            print(f"Debug - Running Time Calculation: {calculated_running_time}")
-            print(f"Debug - Blocks: {blocks}")
             
             return running_time, normal_blocks
         else:
