@@ -77,9 +77,6 @@ def instance_list():
 
     return ssh_info_list
 
-def clean_ansi_codes(input_string):
-    ansi_escape = re.compile(r'\x1B[@-_][0-?]*[ -/]*[@-~]', re.IGNORECASE)
-    return ansi_escape.sub('', input_string)
 
 def get_log_info(ssh_host, ssh_port, username):
     private_key_path = "/home/admin/.ssh/id_ed25519"
@@ -99,8 +96,21 @@ def get_log_info(ssh_host, ssh_port, username):
         _, stdout, _ = ssh.exec_command('tail -n 1 /root/XENGPUMiner/miner.log')
         last_line = stdout.read().decode().strip()
         logging.info("Raw log line: %s", last_line)
-        last_line = clean_ansi_codes(last_line)
         
+        # Parse the last line to get the required information
+        pattern = re.compile(r'Mining: \d+ Blocks \[(\d+):(\d+):(\d+),.*Details=normal:(\d+).*\]')
+        match = pattern.search(last_line)
+        if match:
+            # Extracting the running time (hours, minutes, and seconds) and normal blocks
+            running_hours = int(match.group(1))
+            running_minutes = int(match.group(2))
+            running_seconds = int(match.group(3))
+            normal_blocks = int(match.group(4))
+            
+            return running_hours, running_minutes, running_seconds, normal_blocks
+        else:
+            logging.error("Failed to parse the log line")
+            return None, None, None, None
         
     except Exception as e:
         logging.error("Failed to connect or retrieve log info: %s", e)
@@ -121,4 +131,13 @@ for ssh_info in ssh_info_list:
     instance_id = ssh_info['instance_id']
     ssh_host = ssh_info['ssh_host']
     ssh_port = ssh_info['ssh_port']
+
+    logging.info("Fetching log info for instance ID: %s", instance_id)
+    hours, minutes, seconds, normal_blocks = get_log_info(ssh_host, ssh_port, username)
+    
+    if hours is not None and minutes is not None and seconds is not None and normal_blocks is not None:
+        logging.info("Running Time: %d hours, %d minutes, %d seconds", hours, minutes, seconds)
+        logging.info("Normal Blocks: %d", normal_blocks)
+    else:
+        logging.error("Failed to retrieve log information for instance ID: %s", instance_id)
 
