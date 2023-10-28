@@ -183,7 +183,8 @@ for ssh_info in ssh_info_list:
     else:
         logging.error("Failed to retrieve log information for instance ID: %s", instance_id)
 
-
+# Sort the data by "Blocks/$" in increasing order
+table_data.sort(key=lambda x: x[6] if x[6] is not None else float('-inf'))
 
 # Print the table
 print_table(table_data)
