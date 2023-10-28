@@ -34,9 +34,8 @@ def test_api_connection():
         logging.error(f"Error connecting to API: {e}")
 
 def instance_list():
-    """Function to list instances."""
-    url = 'https://vast.ai/api/v0/instances?api_key={api_key}'
-    headers = {'Accept': 'application/json', 'Authorization': 'ApiKey ' + api_key}
+    url = f"https://vast.ai/api/v0/instances?api_key={api_key}"
+    headers = {'Accept': 'application/json'}
     params = {'user': 'self'}  # To get instances belonging to the authenticated user
     response = requests.get(url, headers=headers, params=params)
     if response.status_code == 200:
