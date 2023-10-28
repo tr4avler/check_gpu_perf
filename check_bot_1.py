@@ -40,29 +40,21 @@ def instance_list():
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         response_json = response.json()
-        logging.info("Full JSON Response: %s", response_json)
         
-        # If the 'instances' key is not in the response, log an error
         if 'instances' not in response_json:
             logging.error("'instances' key not found in response. Please check the API documentation for the correct structure.")
             return
-        
         instances = response_json['instances']
         
         # Print information about each instance
         logging.info("Your Instances:")
         for instance in instances:
             logging.info("Instance ID: %s", instance.get('id', 'N/A'))
-            if 'machine' in instance and 'gpu_name' in instance['machine']:
-               logging.info("GPU Name: %s", instance['machine']['gpu_name'])
-            else:
-                logging.info("GPU Name: N/A")
+            logging.info("GPU Name: %s", instance.get('gpu_name', 'N/A')) 
             logging.info("Dollars Per Hour (DPH): %s", instance.get('dph_total', 'N/A'))
             logging.info("SSH Information:")
-            logging.info("  Host: %s", instance.get('ssh_host', 'N/A'))
+            logging.info("  SSH: %s", instance.get('ssh_host', 'N/A'))
             logging.info("  Port: %s", instance.get('ssh_port', 'N/A'))
-            logging.info("  Username: %s", instance.get('ssh_username', 'N/A'))
-            logging.info("  Password: %s", instance.get('ssh_password', 'N/A'))
             logging.info("-" * 30)
     else:
         logging.error("Failed to retrieve instances. Status code: %s. Response: %s", response.status_code, response.text)
