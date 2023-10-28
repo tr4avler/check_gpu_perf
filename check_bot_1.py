@@ -119,7 +119,7 @@ def get_log_info(ssh_host, ssh_port, username):
             return None, None, None, None
         
     except Exception as e:
-        logging.error("Failed to connect or retrieve log info: %s", e)
+        logging.error("An unexpected error occurred: %s", str(e))
         return None, None, None, None
     
     finally:
