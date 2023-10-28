@@ -118,10 +118,9 @@ def get_log_info(ssh_host, ssh_port, username):
         match = pattern.search(last_line)
         if match:
             # Extracting the running time and normal blocks
-            hours, minutes, seconds, normal_blocks = match.groups()
+            hours, minutes, seconds, normal_blocks = map(int, match.groups())
             
-            logging.info("Parsed log line successfully.")
-            return int(hours), int(minutes), int(seconds), int(normal_blocks)
+            return hours, minutes, seconds, normal_blocks
         else:
             logging.error("Failed to parse the log line")
             return None, None, None, None
