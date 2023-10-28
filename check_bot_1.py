@@ -99,7 +99,6 @@ def get_log_info(ssh_host, ssh_port, username):
         _, stdout, _ = ssh.exec_command('tail -n 1 /root/XENGPUMiner/miner.log')
         last_line = stdout.read().decode().strip()
         logging.info("Raw log line: %s", last_line)
-        last_line = clean_ansi_codes(last_line)
         
         # Parse the last line to get the required information
         pattern = re.compile(r'Mining: \d+ Blocks \[(\d+):(\d+):(\d+),.*Details=normal:(\d+).*\]')
