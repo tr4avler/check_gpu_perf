@@ -106,16 +106,16 @@ def get_log_info(ssh_host, ssh_port, username):
         last_line = clean_ansi_codes(last_line)
         
         # Parse the last line to get the required information
-        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*?Details=.*?(?:normal:(\d+))?.*?\]')
+        pattern = re.compile(r'Mining: (\d+) Blocks \[(\d+):(\d+):(\d+),.*Details=.*normal:(\d*).*\]')
         match = pattern.search(last_line)
         if match:
             # Extracting the running time and normal blocks
-            blocks, hours, minutes, seconds, normal_blocks = match.groups()
-            normal_blocks = int(normal_blocks) if normal_blocks is not None else 0
-            hours, minutes, seconds = map(int, [hours, minutes, seconds])
-            return hours, minutes, seconds, normal_blocks
+            _, hours, minutes, seconds, normal_blocks = match.groups()
+            normal_blocks = int(normal_blocks) if normal_blocks else 0  # Set to 0 if "normal" is not present
+            
+            return int(hours), int(minutes), int(seconds), normal_blocks
         else:
-            logging.error("Failed to parse the log line")
+            logging.warning("Failed to parse the log line")
             return None, None, None, None
         
     except Exception as e:
@@ -124,6 +124,7 @@ def get_log_info(ssh_host, ssh_port, username):
     
     finally:
         ssh.close()
+
 
 from prettytable import PrettyTable      
 def print_table(data):
