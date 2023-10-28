@@ -108,8 +108,8 @@ def get_log_info(ssh_host, ssh_port, username):
             # Extracting the running time and normal blocks
             running_time = int(match.group(1))
             normal_blocks = int(match.group(2))
-            print("Running Time (hours):", running_time)
-            print("Normal Blocks:", normal_blocks)
+            print(f"Debug - Running Time Calculation: {calculated_running_time}")
+            print(f"Debug - Blocks: {blocks}")
             
             return running_time, normal_blocks
         else:
