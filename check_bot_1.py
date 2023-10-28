@@ -106,16 +106,18 @@ def get_log_info(ssh_host, ssh_port, username):
         last_line = clean_ansi_codes(last_line)
         
         # Parse the last line to get the required information
-        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*(?:Details=normal:(\d+))?')
+        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*Details=normal:(\d+).*\]')
+        or
+        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*Details=xuni:(\d+).*\]')
         match = pattern.search(last_line)
         if match:
             # Extracting the running time and normal blocks
-            hours, minutes, seconds, normal_blocks = match.groups()
-            normal_blocks = int(normal_blocks) if normal_blocks is not None else 0
-            return int(hours), int(minutes), int(seconds), normal_blocks
+            hours, minutes, seconds, normal_blocks = map(int, match.groups())
+            
+            return hours, minutes, seconds, normal_blocks
         else:
-            logging.warning("Failed to parse the log line or missing 'Details=normal:' information")
-            return 0, 0, 0, 0
+            logging.error("Failed to parse the log line")
+            return None, None, None, None
         
     except Exception as e:
         logging.error("Failed to connect or retrieve log info: %s", e)
