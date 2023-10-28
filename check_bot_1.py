@@ -136,7 +136,7 @@ from prettytable import PrettyTable
 def print_table(data):
     # Define the table and its columns
     table = PrettyTable()
-    table.field_names = ["Instance ID", "GPU Name", "DPH", "Blocks", "Runtime (hours)", "Block/h", "Blocks/$"]
+    table.field_names = ["Instance ID", "GPU Name", "DPH", "XNM Blocks", "Runtime (hours)", "Block/h", "Blocks/$"]
     
     # Add rows to the table
     for row in data:
@@ -179,7 +179,7 @@ for ssh_info in ssh_info_list:
         # Calculate Blocks/$ and handle the case when the number of blocks is zero
         blocks_per_dollar = (runtime_hours * dph_total) / normal_blocks if normal_blocks != 0 else 0
         
-        table_data.append([instance_id, gpu_name, dph_total, normal_blocks, round(runtime_hours, 2), round(block_per_hour, 2), round(blocks_per_dollar, 2)])
+        table_data.append([instance_id, gpu_name, round(dph_total, 4), normal_blocks, round(runtime_hours, 2), round(block_per_hour, 2), round(blocks_per_dollar, 2)])
     else:
         logging.error("Failed to retrieve log information for instance ID: %s", instance_id)
 
