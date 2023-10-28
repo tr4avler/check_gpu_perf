@@ -102,6 +102,11 @@ def get_log_info(ssh_host, ssh_port, username):
         last_line = stdout.read().decode().strip()
         logging.info("Raw log line: %s", last_line)
         
+        # Check if "Details=normal:" is present in the last line
+        if "Details=normal:" not in last_line:
+            logging.warning("Skipping last log line as 'Details=normal:' is missing.")
+            return None, None, None, None
+            
         # Clean ANSI codes from the log line
         last_line = clean_ansi_codes(last_line)
         
@@ -114,12 +119,11 @@ def get_log_info(ssh_host, ssh_port, username):
             
             return hours, minutes, seconds, normal_blocks
         else:
-            # If 'Details=normal:' is missing, log a warning and return None values
-            logging.warning("Details=normal: is missing in the log line for instance. Skipping to next instance.")
+            logging.error("Failed to parse the log line")
             return None, None, None, None
         
     except Exception as e:
-        logging.error("An unexpected error occurred: %s", str(e))
+        logging.error("Failed to connect or retrieve log info: %s", e)
         return None, None, None, None
     
     finally:
@@ -153,23 +157,23 @@ table_data = []
 # Fetch Log Information for Each Instance
 for ssh_info in ssh_info_list:
     instance_id = ssh_info['instance_id']
-    gpu_name = ssh_info['gpu_name']
-    dph_total = ssh_info['dph_total']
+    gpu_name = ssh_info['gpu_name']  # Corrected this line
+    dph_total = ssh_info['dph_total']  # Corrected this line
     ssh_host = ssh_info['ssh_host']
     ssh_port = ssh_info['ssh_port']
 
     logging.info("Fetching log info for instance ID: %s", instance_id)
     hours, minutes, seconds, normal_blocks = get_log_info(ssh_host, ssh_port, username)
+    
+    total_hours, total_minutes, total_seconds, normal_blocks = get_log_info(ssh_host, ssh_port, username)
 
-    if normal_blocks is not None:
-        total_hours = hours + minutes / 60 + seconds / 3600
-        logging.info("Running Time: %d hours, %d minutes, %d seconds", hours, minutes, seconds)
+    if total_hours is not None:
+        runtime_hours = total_hours + total_minutes / 60 + total_seconds / 3600
+        logging.info("Running Time: %d hours, %d minutes, %d seconds", total_hours, total_minutes, total_seconds)
         logging.info("Normal Blocks: %d", normal_blocks)
-        table_data.append([instance_id, gpu_name, dph_total, round(total_hours, 2), "", ""])
+        table_data.append([instance_id, gpu_name, dph_total, round(runtime_hours, 2), "", ""])
     else:
-        logging.warning("Details=normal: is missing or log line could not be parsed for instance ID: %s", instance_id)
-        continue  # Skip to the next iteration
+        logging.error("Failed to retrieve log information for instance ID: %s", instance_id)
 
 # Print the table
 print_table(table_data)
-
