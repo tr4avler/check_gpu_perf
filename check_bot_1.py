@@ -36,18 +36,20 @@ def test_api_connection():
         logging.error(f"Error connecting to API: {e}")
 
 def instance_list():
-    """Function to list instances."""
+    """Function to list instances and get SSH information."""
     url = f'https://console.vast.ai/api/v0/instances/?api_key={api_key}'
     headers = {'Accept': 'application/json'}
     response = requests.get(url, headers=headers)
+    ssh_info_list = []
+
     if response.status_code == 200:
         response_json = response.json()
-        
+
         if 'instances' not in response_json:
             logging.error("'instances' key not found in response. Please check the API documentation for the correct structure.")
-            return
+            return ssh_info_list
         instances = response_json['instances']
-        
+
         # Print information about each instance
         logging.info("Your Instances:")
         for instance in instances:
@@ -56,23 +58,24 @@ def instance_list():
             dph_total = instance.get('dph_total', 'N/A')
             ssh_host = instance.get('ssh_host', 'N/A')
             ssh_port = instance.get('ssh_port', 'N/A')
-            username = 'root'
-            password = 'your_password'  # Replace with the actual root password
-            
+
             logging.info("Instance ID: %s", instance_id)
             logging.info("GPU Name: %s", gpu_name)
             logging.info("Dollars Per Hour (DPH): %s", dph_total)
             logging.info("SSH Command: ssh -p %s root@%s -L 8080:localhost:8080", ssh_port, ssh_host)
-            
-            log_info = get_log_info(ssh_host, ssh_port, username, password)
-            if log_info:
-                logging.info("Log Information:\n%s", log_info)
-            else:
-                logging.error("Failed to retrieve log information for instance ID: %s", instance_id)
-            
             logging.info("-" * 30)
+
+            ssh_info = {
+                'instance_id': instance_id,
+                'ssh_host': ssh_host,
+                'ssh_port': ssh_port
+            }
+            ssh_info_list.append(ssh_info)
+
     else:
         logging.error("Failed to retrieve instances. Status code: %s. Response: %s", response.status_code, response.text)
+
+    return ssh_info_list
 
 def get_log_info(ssh_host, ssh_port, username, password):
     ssh = paramiko.SSHClient()
@@ -80,52 +83,46 @@ def get_log_info(ssh_host, ssh_port, username, password):
 
     try:
         ssh.connect(ssh_host, port=ssh_port, username=username, password=password)
-        # Fetch the last line of the log file
-        _, stdout, _ = ssh.exec_command("tail -n 1 /root/XENGPUMiner/miner.log")
-        last_log_line = stdout.readline().strip()
-
-        # Extract running time and normal blocks
-        running_time, normal_blocks = parse_log_line(last_log_line)
-        return {
-            'running_time': running_time,
-            'normal_blocks': normal_blocks
-        }
+        _, stdout, _ = ssh.exec_command('tail -n 1 /root/XENGPUMiner/miner.log')
+        last_log_line = stdout.read().decode()
+        
+        # Parsing the log information
+        running_time_match = re.search(r'\[(\d+:\d+:\d+),', last_log_line)
+        normal_blocks_match = re.search(r'Details=normal:(\d+)', last_log_line)
+        
+        if running_time_match and normal_blocks_match:
+            running_time = running_time_match.group(1)
+            normal_blocks = int(normal_blocks_match.group(1))
+            
+            # Convert running time to hours
+            hours, minutes, seconds = map(int, running_time.split(':'))
+            total_hours = hours + minutes / 60 + seconds / 3600
+            total_hours = round(total_hours)
+            
+            return {'running_time': total_hours, 'normal_blocks': normal_blocks}
+        else:
+            logging.error("Failed to parse log information")
+            return None
     except Exception as e:
         logging.error("Failed to connect or retrieve log info: %s", e)
         return None
     finally:
         ssh.close()
 
-def parse_log_line(log_line):
-    # Regex pattern to extract running time and normal blocks
-    pattern = re.compile(r'Mining: \d+ Blocks \[(?P<time>\d{2}:\d{2}:\d{2}), .*normal:(?P<blocks>\d+).*\]')
-    match = pattern.search(log_line)
-    
-    if not match:
-        logging.error("Failed to parse log line: %s", log_line)
-        return None, None
-    
-    time_str = match.group('time')
-    normal_blocks = int(match.group('blocks'))
-    
-    # Convert running time to full hours
-    time_obj = timedelta(hours=int(time_str.split(':')[0]), 
-                         minutes=int(time_str.split(':')[1]), 
-                         seconds=int(time_str.split(':')[2]))
-    running_time = round(time_obj.total_seconds() / 3600)
-    
-    return running_time, normal_blocks
-
-# Later in your code, when you call get_log_info, you can access the information like this:
-log_info = get_log_info(ssh_host, ssh_port, username, password)
-if log_info:
-    logging.info("Running Time (hours): %s", log_info['running_time'])
-    logging.info("Normal Blocks: %s", log_info['normal_blocks'])
-else:
-    logging.error("Failed to retrieve log information")
-
 # Test API Connection
 test_api_connection()
 
-# List Instances
-instance_list()
+# List Instances and Get SSH Information
+ssh_info_list = instance_list()
+username = "root"
+password = "your_password_here"
+
+# Fetch Log Information for Each Instance
+for ssh_info in ssh_info_list:
+    logging.info("Fetching log info for instance ID: %s", ssh_info['instance_id'])
+    log_info = get_log_info(ssh_info['ssh_host'], ssh_info['ssh_port'], username, password)
+    if log_info:
+        logging.info("Running Time (hours): %s", log_info['running_time'])
+        logging.info("Normal Blocks: %s", log_info['normal_blocks'])
+    else:
+        logging.error("Failed to retrieve log information for instance ID: %s", ssh_info['instance_id'])
