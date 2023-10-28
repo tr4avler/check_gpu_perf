@@ -172,9 +172,13 @@ for ssh_info in ssh_info_list:
         runtime_hours = hours + minutes / 60 + seconds / 3600
         logging.info("Running Time: %d hours, %d minutes, %d seconds", hours, minutes, seconds)
         logging.info("Normal Blocks: %d", normal_blocks)
-        table_data.append([instance_id, gpu_name, dph_total, normal_blocks, round(runtime_hours, 2), "", ""])
+
+        # Calculate Block/h and handle the case when runtime is zero
+        block_per_hour = normal_blocks / runtime_hours if runtime_hours != 0 else 0
+        table_data.append([instance_id, gpu_name, dph_total, normal_blocks, round(runtime_hours, 2), round(block_per_hour, 2), ""])
     else:
         logging.error("Failed to retrieve log information for instance ID: %s", instance_id)
+
 
 # Print the table
 print_table(table_data)
