@@ -141,7 +141,7 @@ from prettytable import PrettyTable
 def print_table(data, output_file='table_output.txt'):
     # Define the table and its columns
     table = PrettyTable()
-    table.field_names = ["Instance ID", "GPU Name", "GPU count" "DPH", "XNM Blocks", "Runtime (hours)", "Block/h", "$/Blocks"]
+    table.field_names = ["Instance ID", "GPU Name", "GPU count", "DPH", "XNM Blocks", "Runtime (hours)", "Block/h", "$/Blocks"]
     
     # Add rows to the table to console
     for row in data:
