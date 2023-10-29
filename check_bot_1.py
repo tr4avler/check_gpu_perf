@@ -105,30 +105,18 @@ def get_log_info(ssh_host, ssh_port, username):
         last_line = stdout.read().decode().strip()
         logging.info("Raw log line: %s", last_line)
         
-        # Clean ANSI codes from the log line
-        last_line = clean_ansi_codes(last_line)
-        
         # Parse the last line to get the required information
-        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*(?:(?:Details=)?super:(\d+))?.*(?:(?:Details=)?normal:(\d+))?.*(?:(?:Details=)?xuni:(\d+))?.*Difficulty=(\d+).*\]')
+        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*?(?:super:(\d+))?.*?(?:normal:(\d+))?.*?(?:xuni:(\d+))?.*Difficulty=(\d+).*\]')
         match = pattern.search(last_line)
         if match:
-            # Extracting the running time and blocks
+            # Extracting the running time and block information
             hours, minutes, seconds, super_blocks, normal_blocks, xuni_blocks, difficulty = match.groups()
-            
-            # Convert the extracted values to integers, handling the case where they might be None
-            hours, minutes, seconds, difficulty = map(int, (hours, minutes, seconds, difficulty))
             super_blocks = int(super_blocks) if super_blocks is not None else 0
             normal_blocks = int(normal_blocks) if normal_blocks is not None else 0
             xuni_blocks = int(xuni_blocks) if xuni_blocks is not None else 0
-            
-            # Calculate the total number of blocks
             blocks = super_blocks + normal_blocks + xuni_blocks
             
-            if blocks > 0:
-                return hours, minutes, seconds, blocks, difficulty
-            else:
-                logging.error("Failed to extract block information")
-                return None, None, None, None, None
+            return int(hours), int(minutes), int(seconds), blocks, int(difficulty)
         else:
             logging.error("Failed to parse the log line")
             return None, None, None, None, None
