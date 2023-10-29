@@ -151,7 +151,7 @@ def print_table(data, output_file='table_output.txt'):
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     # Write the table and timestamp to a text file
-    with open(output_file, 'w') as f:
+    with open(output_file, 'a') as f:
         f.write(f"Timestamp: {timestamp}\n{table}\n")
     print(f"Table also written to {output_file}")
 
