@@ -148,6 +148,7 @@ def print_table(data, output_file='table_output.txt'):
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     # Print the table
+        print(f"Timestamp: {timestamp}, Difficulty: {difficulty}")
     print(table)
 
     # Write the table and timestamp to a text file
