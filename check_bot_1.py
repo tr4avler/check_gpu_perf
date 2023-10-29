@@ -117,24 +117,19 @@ def get_log_info(ssh_host, ssh_port, username):
             # Extracting the running time and blocks
             hours, minutes, seconds, super_blocks, normal_blocks, xuni_blocks, difficulty = match.groups()
             
-            super_blocks = int(super_blocks) if super_blocks is not None else 0
-            normal_blocks = int(normal_blocks) if normal_blocks is not None else 0
-            xuni_blocks = int(xuni_blocks) if xuni_blocks is not None else 0
-
-            return int(hours), int(minutes), int(seconds), normal_blocks, int(difficulty)
-
-        else:
-            logging.error("Failed to parse the log line")
-            return None, None, None, None, None
+            if blocks is not None:
+                return int(hours), int(minutes), int(seconds), normal_blocks, int(difficulty)
+            else:
+                logging.error("Failed to parse the log line")
+                return None, None, None, None, None, 
         
     except Exception as e:
         logging.error("Failed to connect or retrieve log info: %s", e)
-        return None, None, None, None, None
+        return None, None, None, None, None, 
     
     finally:
         ssh.close()
-
-
+        
 from prettytable import PrettyTable      
 def print_table(data, output_file='table_output.txt'):
     # Define the table and its columns
