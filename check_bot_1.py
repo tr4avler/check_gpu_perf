@@ -110,18 +110,19 @@ def get_log_info(ssh_host, ssh_port, username):
         last_line = clean_ansi_codes(last_line)
         
         # Parse the last line to get the required information
-        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*(?:Details=normal:(\d+)|Details=xuni:(\d+)).*Difficulty=(\d+).*\]')
+        #pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*(?:Details=normal:(\d+)|Details=xuni:(\d+)).*Difficulty=(\d+).*\]')
+        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*(?:super:(\d+))?.*(?:normal:(\d+))?.*(?:xuni:(\d+))?.*Difficulty=(\d+).*\]')
         match = pattern.search(last_line)
         if match:
-            # Extracting the running time and normal blocks
-            hours, minutes, seconds, normal_blocks, xuni_blocks, difficulty = match.groups()
-            blocks = int(normal_blocks) if normal_blocks is not None else int(xuni_blocks) if xuni_blocks is not None else None
+            # Extracting the running time and blocks
+            hours, minutes, seconds, super_blocks, normal_blocks, xuni_blocks, difficulty = match.groups()
             
-            if blocks is not None:
-                return int(hours), int(minutes), int(seconds), blocks, int(difficulty)
-            else:
-                logging.error("Failed to extract block information")
-                return None, None, None, None, None
+            super_blocks = int(super_blocks) if super_blocks is not None else 0
+            normal_blocks = int(normal_blocks) if normal_blocks is not None else 0
+            xuni_blocks = int(xuni_blocks) if xuni_blocks is not None else 0s
+
+            return int(hours), int(minutes), int(seconds), normal_blocks, int(difficulty)
+
         else:
             logging.error("Failed to parse the log line")
             return None, None, None, None, None
@@ -173,6 +174,7 @@ for ssh_info in ssh_info_list:
     instance_id = ssh_info['instance_id']
     gpu_name = ssh_info['gpu_name']
     dph_total = float(ssh_info['dph_total'])  # Convert DPH to float for calculations
+    ssh_host = ssh_info['ssh_host']
     ssh_host = ssh_info['ssh_host']
     ssh_port = ssh_info['ssh_port']
 
