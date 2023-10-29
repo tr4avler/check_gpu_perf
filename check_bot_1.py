@@ -105,18 +105,22 @@ def get_log_info(ssh_host, ssh_port, username):
         last_line = stdout.read().decode().strip()
         logging.info("Raw log line: %s", last_line)
         
+        # Clean ANSI codes from the log line
+        last_line = clean_ansi_codes(last_line)
+        
         # Parse the last line to get the required information
-        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*?(?:super:(\d+))?.*?(?:normal:(\d+))?.*?(?:xuni:(\d+))?.*Difficulty=(\d+).*\]')
+        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*(?:normal:(\d+)|xuni:(\d+)).*Difficulty=(\d+).*\]')
         match = pattern.search(last_line)
         if match:
-            # Extracting the running time and block information
-            hours, minutes, seconds, super_blocks, normal_blocks, xuni_blocks, difficulty = match.groups()
-            super_blocks = int(super_blocks) if super_blocks is not None else 0
-            normal_blocks = int(normal_blocks) if normal_blocks is not None else 0
-            xuni_blocks = int(xuni_blocks) if xuni_blocks is not None else 0
-            blocks = super_blocks + normal_blocks + xuni_blocks
+            # Extracting the running time and normal blocks
+            hours, minutes, seconds, normal_blocks, xuni_blocks, difficulty = match.groups()
+            blocks = int(normal_blocks) if normal_blocks is not None else int(xuni_blocks) if xuni_blocks is not None else None
             
-            return int(hours), int(minutes), int(seconds), blocks, int(difficulty)
+            if blocks is not None:
+                return int(hours), int(minutes), int(seconds), blocks, int(difficulty)
+            else:
+                logging.error("Failed to extract block information")
+                return None, None, None, None, None
         else:
             logging.error("Failed to parse the log line")
             return None, None, None, None, None
@@ -127,7 +131,6 @@ def get_log_info(ssh_host, ssh_port, username):
     
     finally:
         ssh.close()
-
 
 from prettytable import PrettyTable      
 def print_table(data, output_file='table_output.txt'):
