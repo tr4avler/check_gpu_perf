@@ -111,7 +111,7 @@ def get_log_info(ssh_host, ssh_port, username):
         
         # Parse the last line to get the required information
         #pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*(?:Details=normal:(\d+)|Details=xuni:(\d+)).*Difficulty=(\d+).*\]')
-        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*(?:super:(\d+))?.*(?:normal:(\d+))?.*(?:xuni:(\d+))?.*Difficulty=(\d+).*\]')
+        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*(?<!Details=)(?:super:(\d+))?.*(?<!Details=)(?:normal:(\d+))?.*(?<!Details=)(?:xuni:(\d+))?.*Difficulty=(\d+).*\]')
         match = pattern.search(last_line)
         if match:
             # Extracting the running time and blocks
@@ -119,7 +119,7 @@ def get_log_info(ssh_host, ssh_port, username):
             
             super_blocks = int(super_blocks) if super_blocks is not None else 0
             normal_blocks = int(normal_blocks) if normal_blocks is not None else 0
-            xuni_blocks = int(xuni_blocks) if xuni_blocks is not None else 0
+            xuni_blocks = int(xuni_blocks) if xuni_blocks is not None else 0s
 
             return int(hours), int(minutes), int(seconds), normal_blocks, int(difficulty)
 
