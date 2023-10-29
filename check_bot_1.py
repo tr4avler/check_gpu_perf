@@ -138,7 +138,7 @@ def get_log_info(ssh_host, ssh_port, username):
 
 
 from prettytable import PrettyTable      
-def print_table(data, output_file='table_output.txt'):
+def print_table(data, difficulty, output_file='table_output.txt'):
     # Define the table and its columns
     table = PrettyTable()
     table.field_names = ["Instance ID", "GPU Name", "GPU count", "DPH", "XNM Blocks", "Runtime (hours)", "Block/h", "$/Blocks"]
@@ -203,7 +203,7 @@ for ssh_info in ssh_info_list:
 table_data.sort(key=lambda x: x[7] if x[7] is not None else float('-inf'))
 
 # Print the table
-print_table(table_data)
+print_table(table_data, global_difficulty)
 
 # Exit the script
 sys.exit()
