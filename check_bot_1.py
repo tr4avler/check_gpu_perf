@@ -203,7 +203,7 @@ for ssh_info in ssh_info_list:
 table_data.sort(key=lambda x: x[7] if x[7] is not None else float('-inf'))
 
 # Print the table
-print_table(table_data)
+print_table(table_data, difficulty)
 
 # Exit the script
 sys.exit()
