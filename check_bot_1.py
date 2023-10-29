@@ -149,7 +149,7 @@ def print_table(data, output_file='table_output.txt'):
 
     # Print the table
     if difficulty is not None:
-        print(f"Timestamp: {timestamp}, Difficulty: {difficulty}")
+        print(f"\nTimestamp: {timestamp}, Difficulty: {difficulty}")
     print(table)
 
     # Write the table and timestamp to a text file
