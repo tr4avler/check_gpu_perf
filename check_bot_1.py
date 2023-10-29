@@ -144,12 +144,11 @@ def print_table(data, output_file='table_output.txt'):
     for row in data:
         table.add_row(row)
 
-    # Print the table
-    print(table)
-
     # Get current timestamp
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+    # Print the table
+    print(table)
 
     # Write the table and timestamp to a text file
     with open(output_file, 'a') as f:
