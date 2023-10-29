@@ -111,7 +111,7 @@ def get_log_info(ssh_host, ssh_port, username):
         
         # Parse the last line to get the required information
         #pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*(?:Details=normal:(\d+)|Details=xuni:(\d+)).*Difficulty=(\d+).*\]')
-        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*?(?:Details=[^,]*,)?\s*(?:super:(\d+))?.*(?:normal:(\d+))?.*(?:xuni:(\d+))?.*Difficulty=(\d+).*\]')
+        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*(?:Details=)?.*(?:super:(\d+))?.*(?:normal:(\d+))?.*(?:xuni:(\d+))?.*Difficulty=(\d+).*\]')
         match = pattern.search(last_line)
         if match:
             # Extracting the running time and blocks
