@@ -175,7 +175,7 @@ for ssh_info in ssh_info_list:
     ssh_port = ssh_info['ssh_port']
 
     logging.info("Fetching log info for instance ID: %s", instance_id)
-    hours, minutes, seconds, normal_blocks = get_log_info(ssh_host, ssh_port, username)
+    hours, minutes, seconds, normal_blocks, difficulty = get_log_info(ssh_host, ssh_port, username)
     
     if hours is not None:
         runtime_hours = hours + minutes / 60 + seconds / 3600
