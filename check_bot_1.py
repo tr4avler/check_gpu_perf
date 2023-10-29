@@ -85,7 +85,6 @@ def clean_ansi_codes(input_string):
     ansi_escape = re.compile(r'\x1B[@-_][0-?]*[ -/]*[@-~]', re.IGNORECASE)
     return ansi_escape.sub('', input_string)
 
-import re
 
 def get_log_info(ssh_host, ssh_port, username):
     private_key_path = "/home/admin/.ssh/id_ed25519"
@@ -110,26 +109,38 @@ def get_log_info(ssh_host, ssh_port, username):
         last_line = clean_ansi_codes(last_line)
         
         # Parse the last line to get the required information
-        #pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*(?:Details=normal:(\d+)|Details=xuni:(\d+)).*Difficulty=(\d+).*\]')
-        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*(?:Details=)?.*(?:super:(\d+))?.*(?:normal:(\d+))?.*(?:xuni:(\d+))?.*Difficulty=(\d+).*\]')
+        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*(?:(?:Details=)?super:(\d+))?.*(?:(?:Details=)?normal:(\d+))?.*(?:(?:Details=)?xuni:(\d+))?.*Difficulty=(\d+).*\]')
         match = pattern.search(last_line)
         if match:
             # Extracting the running time and blocks
             hours, minutes, seconds, super_blocks, normal_blocks, xuni_blocks, difficulty = match.groups()
             
-            if normal_blocks is not None:
-                return int(hours), int(minutes), int(seconds), normal_blocks, int(difficulty)
+            # Convert the extracted values to integers, handling the case where they might be None
+            hours, minutes, seconds, difficulty = map(int, (hours, minutes, seconds, difficulty))
+            super_blocks = int(super_blocks) if super_blocks is not None else 0
+            normal_blocks = int(normal_blocks) if normal_blocks is not None else 0
+            xuni_blocks = int(xuni_blocks) if xuni_blocks is not None else 0
+            
+            # Calculate the total number of blocks
+            blocks = super_blocks + normal_blocks + xuni_blocks
+            
+            if blocks > 0:
+                return hours, minutes, seconds, blocks, difficulty
             else:
-                logging.error("Failed to parse the log line")
-                return None, None, None, None, None, 
+                logging.error("Failed to extract block information")
+                return None, None, None, None, None
+        else:
+            logging.error("Failed to parse the log line")
+            return None, None, None, None, None
         
     except Exception as e:
         logging.error("Failed to connect or retrieve log info: %s", e)
-        return None, None, None, None, None, 
+        return None, None, None, None, None
     
     finally:
         ssh.close()
-        
+
+
 from prettytable import PrettyTable      
 def print_table(data, output_file='table_output.txt'):
     # Define the table and its columns
