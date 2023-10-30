@@ -149,12 +149,12 @@ def print_table(data, mean_difficulty, average_dollars_per_normal_block, output_
 
     # Print the table
     if mean_difficulty is not None:
-        print(f"\nTimestamp: {timestamp}, Difficulty: {int(mean_difficulty)}, Total Hash: {total_hash_rate:.2f}h/s, Total DPH: {total_dph:.4f}$, Avg. $/Block: {average_dollars_per_normal_block:.4f}")
+        print(f"\nTimestamp: {timestamp}, Difficulty: {int(mean_difficulty)}, Total Hash: {total_hash_rate:.2f}h/s, Total DPH: {total_dph:.4f}$, Avg_$/Block: {average_dollars_per_normal_block:.4f}$")
     print(table)
 
     # Write the table and timestamp to a text file
     with open(output_file, 'a') as f:
-        f.write(f"Timestamp: {timestamp}, Difficulty: {int(mean_difficulty)}, Total Hash: {total_hash_rate:.2f}h/s, Total DPH: {total_dph:.4f}$, Avg. $/Block: {average_dollars_per_normal_block:.4f}\n{table}\n")
+        f.write(f"Timestamp: {timestamp}, Difficulty: {int(mean_difficulty)}, Total Hash: {total_hash_rate:.2f}h/s, Total DPH: {total_dph:.4f}$, Avg_$/Block: {average_dollars_per_normal_block:.4f}$\n{table}\n")
     print(f"Table also written to {output_file}")
 
 
@@ -227,7 +227,6 @@ for ssh_info in ssh_info_list:
 
     if dollars_per_normal_block_values:
         average_dollars_per_normal_block = sum(dollars_per_normal_block_values) / len(dollars_per_normal_block_values)
-        logging.info("Avg. $/Block: %.4f", average_dollars_per_normal_block)
     else:
         average_dollars_per_normal_block = None
         logging.info("No valid $/Block values were found.")
