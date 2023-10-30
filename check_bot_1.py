@@ -204,11 +204,7 @@ for ssh_info in ssh_info_list:
         dollars_per_normal_block = (runtime_hours * dph_total) / normal_blocks if normal_blocks != 0 else 0
         dollars_per_xuni_block = (runtime_hours * dph_total) / xuni_blocks if xuni_blocks != 0 else 0
         
-        table_data.append([instance_id, gpu_name, num_gpus, round(hash_rate, 2), round(dph_total, 4), 
-                            normal_blocks, xuni_blocks, 
-                            round(runtime_hours, 2), 
-                            round(normal_block_per_hour, 2), round(xuni_block_per_hour, 2), 
-                            round(dollars_per_normal_block, 2), round(dollars_per_xuni_block, 2)])        
+        table_data.append([instance_id, gpu_name, num_gpus, round(hash_rate, 2), round(dph_total, 4), normal_blocks, round(runtime_hours, 2), round(normal_block_per_hour, 2), round(dollars_per_normal_block, 2)])        
     else:
         logging.error("Failed to retrieve log information or normal blocks is None for instance ID: %s", instance_id)
 
