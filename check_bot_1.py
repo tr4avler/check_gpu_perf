@@ -152,7 +152,7 @@ def print_table(data, mean_difficulty, output_file='table_output.txt'):
 
     # Print the table
     if mean_difficulty is not None:
-        print(f"\nTimestamp: {timestamp}, Difficulty: {mean_difficulty}, Total HashRate: {total_hash_rate:.2f} h/s")
+        print(f"\nTimestamp: {timestamp}, Difficulty: {mean_difficulty}, Total Hash: {total_hash_rate:.2f}h/s, Total DPH: {total_dph:.4f}")
     print(table)
 
     # Write the table and timestamp to a text file
@@ -172,6 +172,7 @@ username = "root"
 table_data = []
 difficulties = []
 hash_rates = []
+dph_values = []
 
 # Fetch Log Information for Each Instance
 for ssh_info in ssh_info_list:
@@ -179,6 +180,7 @@ for ssh_info in ssh_info_list:
     gpu_name = ssh_info['gpu_name']
     num_gpus = ssh_info['num_gpus']
     dph_total = float(ssh_info['dph_total'])  # Convert DPH to float for calculations
+    dph_values.append(dph_total)
     ssh_host = ssh_info['ssh_host']
     ssh_port = ssh_info['ssh_port']
 
@@ -209,13 +211,16 @@ for ssh_info in ssh_info_list:
         mean_difficulty = sum(difficulties) / len(difficulties)
         logging.info("Difficulty: %d", mean_difficulty)
     else:
-        logging.info("No valid difficulties were found.")
-               
+        logging.info("No valid difficulties were found.")           
     if hash_rates:
         total_hash_rate = sum(hash_rates)
-        logging.info("Total HashRate: %.2f", total_hash_rate)
     else:
-        logging.info("No valid HashRate were found.")     
+        logging.info("No valid HashRate were found.")  
+   if dph_values:
+        total_dph = sum(dph_values)
+    else:
+        logging.info("No valid DPH values were found.")
+        
 
 # Sort the data by "Blocks/$" in increasing order
 table_data.sort(key=lambda x: x[8] if x[8] is not None else float('-inf'))
