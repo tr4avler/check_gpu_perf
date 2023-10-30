@@ -88,8 +88,6 @@ def clean_ansi_codes(input_string):
     ansi_escape = re.compile(r'\x1B[@-_][0-?]*[ -/]*[@-~]', re.IGNORECASE)
     return ansi_escape.sub('', input_string)
 
-import re
-
 def get_log_info(ssh_host, ssh_port, username):
     private_key_path = "/home/admin/.ssh/id_ed25519"
     
@@ -119,23 +117,21 @@ def get_log_info(ssh_host, ssh_port, username):
             # Extracting the running time and blocks information
             hours, minutes, seconds, normal_blocks, xuni_blocks, hash_rate, difficulty = match.groups()
 
-            # Handle the case where "Details" part is missing
-            if normal_blocks is None and xuni_blocks is None:
-                blocks = None
-            else:
-                blocks = int(normal_blocks) if normal_blocks is not None else int(xuni_blocks)
+            normal_blocks = int(normal_blocks) if normal_blocks is not None else 0
+            xuni_blocks = int(xuni_blocks) if xuni_blocks is not None else 0
 
-            return int(hours), int(minutes), int(seconds), blocks, float(hash_rate), int(difficulty)
+            return int(hours), int(minutes), int(seconds), normal_blocks, xuni_blocks, float(hash_rate), int(difficulty)
         else:
             logging.error("Failed to parse the log line")
-            return None, None, None, None, None, None
+            return None, None, None, None, None, None, None
         
     except Exception as e:
         logging.error("Failed to connect or retrieve log info: %s", e)
-        return None, None, None, None, None, None
+        return None, None, None, None, None, None, None
     
     finally:
         ssh.close()
+
 
 
 from prettytable import PrettyTable      
@@ -193,17 +189,20 @@ for ssh_info in ssh_info_list:
     if hash_rate is not None and hash_rate != 0:
         hash_rates.append(hash_rate)        
     
-    if normal_blocks is not None and hours is not None:
+    if normal_blocks is not None and xuni_blocks is not None:
         runtime_hours = hours + minutes / 60 + seconds / 3600
         logging.info("Running Time: %d hours, %d minutes, %d seconds", hours, minutes, seconds)
         logging.info("Normal Blocks: %d", normal_blocks)
+        logging.info("Xuni Blocks: %d", xuni_blocks)
         logging.info("HashRate: %.2f", hash_rate)
-        
+
         # Calculate Block/h and handle the case when runtime is zero
-        block_per_hour = normal_blocks / runtime_hours if runtime_hours != 0 else 0
-    
-        # Calculate Blocks/$ and handle the case when the number of blocks is zero
-        blocks_per_dollar = (runtime_hours * dph_total) / normal_blocks if normal_blocks != 0 else 0
+        normal_block_per_hour = normal_blocks / runtime_hours if runtime_hours != 0 else 0
+        xuni_block_per_hour = xuni_blocks / runtime_hours if runtime_hours != 0 else 0
+
+        # Calculate $/Blocks and handle the case when the number of blocks is zero
+        dollars_per_normal_block = (runtime_hours * dph_total) / normal_blocks if normal_blocks != 0 else 0
+        dollars_per_xuni_block = (runtime_hours * dph_total) / xuni_blocks if xuni_blocks != 0 else 0
         
         table_data.append([instance_id, gpu_name, num_gpus, round(hash_rate, 2), round(dph_total, 4), normal_blocks, round(runtime_hours, 2), round(block_per_hour, 2), round(blocks_per_dollar, 2)])
     else:
