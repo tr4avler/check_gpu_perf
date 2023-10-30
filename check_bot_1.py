@@ -191,7 +191,7 @@ for ssh_info in ssh_info_list:
         runtime_hours = hours + minutes / 60 + seconds / 3600
         logging.info("Running Time: %d hours, %d minutes, %d seconds", hours, minutes, seconds)
         logging.info("Normal Blocks: %d", normal_blocks)
-        logging.info("HashRate: %d", hash_rate)
+        logging.info("HashRate: %.2f", hash_rate)
         # Calculate Block/h and handle the case when runtime is zero
         block_per_hour = normal_blocks / runtime_hours if runtime_hours != 0 else 0
 
@@ -204,7 +204,7 @@ for ssh_info in ssh_info_list:
 
     if difficulties:
         mean_difficulty = sum(difficulties) / len(difficulties)
-        logging.info("Difficulty: %.2f", mean_difficulty)
+        logging.info("Difficulty: %d", mean_difficulty)
     else:
         logging.info("No valid difficulties were found.")
 
