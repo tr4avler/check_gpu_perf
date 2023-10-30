@@ -117,7 +117,7 @@ def get_log_info(ssh_host, ssh_port, username):
         match = pattern.search(last_line)
         if match:
             # Extracting the running time and normal blocks
-            hours, minutes, seconds, normal_blocks, xuni_blocks, hash_rate, difficulty = match.groups()[-2:]
+            hours, minutes, seconds, normal_blocks, xuni_blocks, hash_rate, difficulty = match.groups()
             blocks = int(normal_blocks) if normal_blocks is not None else int(xuni_blocks) if xuni_blocks is not None else None
             
             if blocks is not None:
@@ -192,6 +192,7 @@ for ssh_info in ssh_info_list:
         runtime_hours = hours + minutes / 60 + seconds / 3600
         logging.info("Running Time: %d hours, %d minutes, %d seconds", hours, minutes, seconds)
         logging.info("Normal Blocks: %d", normal_blocks)
+        logging.info("HashRate: %d", hash_rate)
         logging.info("Difficulty: %d", difficulty)
         # Calculate Block/h and handle the case when runtime is zero
         block_per_hour = normal_blocks / runtime_hours if runtime_hours != 0 else 0
