@@ -193,19 +193,20 @@ for ssh_info in ssh_info_list:
         difficulties.append(difficulty)
     if hash_rate is not None and hash_rate != 0:
         hash_rates.append(hash_rate)        
-    
-    if hours is not None:
-        runtime_hours = hours + minutes / 60 + seconds / 3600
-        logging.info("Running Time: %d hours, %d minutes, %d seconds", hours, minutes, seconds)
-        logging.info("Normal Blocks: %d", normal_blocks)
-        logging.info("HashRate: %.2f", hash_rate)
-        # Calculate Block/h and handle the case when runtime is zero
+
     if normal_blocks is not None:
         logging.info("Normal Blocks: %d", normal_blocks)
         block_per_hour = normal_blocks / runtime_hours if runtime_hours != 0 else 0
     else:
         logging.info("Normal Blocks: None")
         block_per_hour = 0
+    
+    if hours is not None:
+        runtime_hours = hours + minutes / 60 + seconds / 3600
+        logging.info("Running Time: %d hours, %d minutes, %d seconds", hours, minutes, seconds)
+        logging.info("Normal Blocks: %d", normal_blocks)
+        logging.info("HashRate: %.2f", hash_rate)
+
         # Calculate Blocks/$ and handle the case when the number of blocks is zero
         blocks_per_dollar = (runtime_hours * dph_total) / normal_blocks if normal_blocks != 0 else 0
         
