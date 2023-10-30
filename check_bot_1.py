@@ -245,5 +245,8 @@ table_data.sort(key=lambda x: x[8] if x[8] is not None else float('-inf'))
 # Print the table
 print_table(table_data, mean_difficulty, average_dollars_per_normal_block)
 
+# At the end, you can print or use the total_dph_running_machines as needed
+print("Total DPH for running machines:", total_dph_running_machines)
+
 # Exit the script
 sys.exit()
