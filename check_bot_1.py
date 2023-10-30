@@ -171,7 +171,7 @@ username = "root"
 # Store the data for the table
 table_data = []
 difficulties = []
-total_hash = []
+hash_rates = []
 
 # Fetch Log Information for Each Instance
 for ssh_info in ssh_info_list:
@@ -188,7 +188,7 @@ for ssh_info in ssh_info_list:
     if difficulty is not None and difficulty != 0:
         difficulties.append(difficulty)
     if hash_rate is not None and hash_rate != 0:
-        total_hash.append(hash_rate)        
+        hash_rates.append(hash_rate)        
     
     if hours is not None:
         runtime_hours = hours + minutes / 60 + seconds / 3600
@@ -211,11 +211,11 @@ for ssh_info in ssh_info_list:
     else:
         logging.info("No valid difficulties were found.")
                
-    if total_hash:
-        total_hash = sum(hash_rate)
-        logging.info("Total HashRate: %.2f", total_hash)
+    if hash_rates:
+        total_hash_rate = sum(hash_rates)
+        logging.info("Total HashRate: %.2f", total_hash_rate)
     else:
-        logging.info("No valid HashRate were found.")        
+        logging.info("No valid HashRate were found.")     
 
 # Sort the data by "Blocks/$" in increasing order
 table_data.sort(key=lambda x: x[8] if x[8] is not None else float('-inf'))
