@@ -112,19 +112,21 @@ def get_log_info(ssh_host, ssh_port, username):
         # Clean ANSI codes from the log line
         last_line = clean_ansi_codes(last_line)
         
-        # Parse the last line to get the required information
-        pattern = re.compile(r'Mining: (\d+) Blocks \[(\d+):(\d+):(\d+),.*(?:Details=normal:(\d+)|Details=xuni:(\d+)).*HashRate:(\d+.\d+).*Difficulty=(\d+).*\]')
+        # Updated regex pattern to make "blocks per second" and "Details" parts optional
+        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*(?:\? Blocks/s|.*(?:Details=normal:(\d+)|Details=xuni:(\d+))).*HashRate:(\d+.\d+).*Difficulty=(\d+).*\]')
+        
         match = pattern.search(last_line)
         if match:
-            # Extracting the running time and normal blocks
-            normal_blocks, hours, minutes, seconds, _, _, hash_rate, difficulty = match.groups()
-            blocks = int(normal_blocks) if normal_blocks is not None else int(xuni_blocks) if xuni_blocks is not None else None
-            
-            if blocks is not None:
-                return int(hours), int(minutes), int(seconds), blocks, float(hash_rate), int(difficulty)
+            # Extracting the running time and blocks information
+            hours, minutes, seconds, normal_blocks, xuni_blocks, hash_rate, difficulty = match.groups()
+
+            # Handle the case where "Details" part is missing
+            if normal_blocks is None and xuni_blocks is None:
+                blocks = None
             else:
-                logging.error("Failed to extract block information")
-                return None, None, None, None, None, None
+                blocks = int(normal_blocks) if normal_blocks is not None else int(xuni_blocks)
+
+            return int(hours), int(minutes), int(seconds), blocks, float(hash_rate), int(difficulty)
         else:
             logging.error("Failed to parse the log line")
             return None, None, None, None, None, None
