@@ -113,7 +113,7 @@ def get_log_info(ssh_host, ssh_port, username):
         last_line = clean_ansi_codes(last_line)
         
         # Parse the last line to get the required information
-        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*(?:Details=normal:(\d+)|Details=xuni:(\d+)).*HashRate:(\d+).*Difficulty=(\d+).*\]')
+        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*(?:Details=normal:(\d+)|Details=xuni:(\d+)).*HashRate:(\d+.\d+).*Difficulty=(\d+).*\]')
         match = pattern.search(last_line)
         if match:
             # Extracting the running time and normal blocks
@@ -179,7 +179,6 @@ for ssh_info in ssh_info_list:
     num_gpus = ssh_info['num_gpus']
     dph_total = float(ssh_info['dph_total'])  # Convert DPH to float for calculations
     ssh_host = ssh_info['ssh_host']
-    ssh_host = ssh_info['ssh_host']
     ssh_port = ssh_info['ssh_port']
 
     logging.info("Fetching log info for instance ID: %s", instance_id)
@@ -192,7 +191,7 @@ for ssh_info in ssh_info_list:
         runtime_hours = hours + minutes / 60 + seconds / 3600
         logging.info("Running Time: %d hours, %d minutes, %d seconds", hours, minutes, seconds)
         logging.info("Normal Blocks: %d", normal_blocks)
-        logging.info("HashRate: %d", hash_rate)
+        logging.info("HashRate: %d.%d", hash_rate)
         logging.info("Difficulty: %d", difficulty)
         # Calculate Block/h and handle the case when runtime is zero
         block_per_hour = normal_blocks / runtime_hours if runtime_hours != 0 else 0
