@@ -121,7 +121,7 @@ def get_log_info(ssh_host, ssh_port, username):
             blocks = int(mined_blocks), int(normal_blocks) if normal_blocks is not None else int(xuni_blocks) if xuni_blocks is not None else None
             
             if blocks is not None and mined_blocks is not None:
-                return int(hours), int(minutes), int(seconds), blocks, float(hash_rate), int(difficulty)
+                return int(mined_blocks) ,int(hours), int(minutes), int(seconds), blocks, float(hash_rate), int(difficulty)
             else:
                 logging.error("Failed to extract block information")
                 return None, None, None, None, None, None, None
