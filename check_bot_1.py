@@ -185,7 +185,7 @@ for ssh_info in ssh_info_list:
     ssh_port = ssh_info['ssh_port']
 
     logging.info("Fetching log info for instance ID: %s", instance_id)
-    hours, minutes, seconds, normal_blocks, hash_rate, difficulty = get_log_info(ssh_host, ssh_port, username)
+    mined_blocks, hours, minutes, seconds, normal_blocks, hash_rate, difficulty = get_log_info(ssh_host, ssh_port, username)
     
     if difficulty is not None and difficulty != 0:
         difficulties.append(difficulty)
