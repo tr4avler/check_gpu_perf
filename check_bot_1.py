@@ -144,7 +144,7 @@ def get_log_info(ssh_host, ssh_port, username):
 
 
 from prettytable import PrettyTable      
-def print_table(data, mean_difficulty, average_dollars_per_normal_block, output_file='table_output.txt'):
+def print_table(data, mean_difficulty, average_dollars_per_normal_block, total_dph_running_machines, output_file='table_output.txt'):
     # Define the table and its columns
     table = PrettyTable()
     table.field_names = ["Instance ID", "GPU Name", "GPU count", "HashRate (h/s)", "DPH", "XNM Blocks", "Runtime (hours)", "Block/h", "$/Blocks"]
@@ -158,12 +158,12 @@ def print_table(data, mean_difficulty, average_dollars_per_normal_block, output_
 
     # Print the table
     if mean_difficulty is not None:
-        print(f"\nTimestamp: {timestamp}, Difficulty: {int(mean_difficulty)}, Total Hash: {total_hash_rate:.2f}h/s, Total DPH: {total_dph:.4f}$, Avg_$/Block: {average_dollars_per_normal_block:.4f}$")
+        print(f"\nTimestamp: {timestamp}, Difficulty: {int(mean_difficulty)}, Total Hash: {total_hash_rate:.2f}h/s, Total DPH: {total_dph_running_machines:.4f}$, Avg_$/Block: {average_dollars_per_normal_block:.4f}$")
     print(table)
 
     # Write the table and timestamp to a text file
     with open(output_file, 'a') as f:
-        f.write(f"Timestamp: {timestamp}, Difficulty: {int(mean_difficulty)}, Total Hash: {total_hash_rate:.2f}h/s, Total DPH: {total_dph:.4f}$, Avg_$/Block: {average_dollars_per_normal_block:.4f}$\n{table}\n")
+        f.write(f"Timestamp: {timestamp}, Difficulty: {int(mean_difficulty)}, Total Hash: {total_hash_rate:.2f}h/s, Total DPH: {total_dph_running_machines:.4f}$, Avg_$/Block: {average_dollars_per_normal_block:.4f}$\n{table}\n")
     print(f"Table also written to {output_file}")
 
 
@@ -243,10 +243,7 @@ for ssh_info in ssh_info_list:
 table_data.sort(key=lambda x: x[8] if x[8] is not None else float('-inf'))
 
 # Print the table
-print_table(table_data, mean_difficulty, average_dollars_per_normal_block)
-
-# At the end, you can print or use the total_dph_running_machines as needed
-print("Total DPH for running machines:", total_dph_running_machines)
+print_table(table_data, mean_difficulty, average_dollars_per_normal_block, total_dph_running_machines)
 
 # Exit the script
 sys.exit()
