@@ -193,23 +193,22 @@ for ssh_info in ssh_info_list:
     if hash_rate is not None and hash_rate != 0:
         hash_rates.append(hash_rate)        
     
-    if hours is not None:
+    if normal_blocks is not None and hours is not None:
         runtime_hours = hours + minutes / 60 + seconds / 3600
         logging.info("Running Time: %d hours, %d minutes, %d seconds", hours, minutes, seconds)
-        if normal_blocks is not None:
-            logging.info("Normal Blocks: %d", normal_blocks)
-        else:
-            logging.warning("Normal Blocks is None. Unable to log it as an integer.")
+        logging.info("Normal Blocks: %d", normal_blocks)
         logging.info("HashRate: %.2f", hash_rate)
+        
         # Calculate Block/h and handle the case when runtime is zero
         block_per_hour = normal_blocks / runtime_hours if runtime_hours != 0 else 0
-
+    
         # Calculate Blocks/$ and handle the case when the number of blocks is zero
         blocks_per_dollar = (runtime_hours * dph_total) / normal_blocks if normal_blocks != 0 else 0
         
         table_data.append([instance_id, gpu_name, num_gpus, round(hash_rate, 2), round(dph_total, 4), normal_blocks, round(runtime_hours, 2), round(block_per_hour, 2), round(blocks_per_dollar, 2)])
     else:
-        logging.error("Failed to retrieve log information for instance ID: %s", instance_id)
+        logging.error("Failed to retrieve log information or normal blocks is None for instance ID: %s", instance_id)
+
 
     if difficulties:
         mean_difficulty = sum(difficulties) / len(difficulties)
