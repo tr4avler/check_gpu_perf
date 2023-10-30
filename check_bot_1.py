@@ -227,10 +227,10 @@ for ssh_info in ssh_info_list:
 
     if dollars_per_normal_block_values:
         average_dollars_per_normal_block = sum(dollars_per_normal_block_values) / len(dollars_per_normal_block_values)
-        logging.info("Average $/Normal Block: %.2f", average_dollars_per_normal_block)
+        logging.info("Avg. $/Block: %.4f", average_dollars_per_normal_block)
     else:
         average_dollars_per_normal_block = None
-        logging.info("No valid $/Normal Block values were found.")
+        logging.info("No valid $/Block values were found.")
 
 # Sort the data by "Blocks/$" in increasing order
 table_data.sort(key=lambda x: x[8] if x[8] is not None else float('-inf'))
