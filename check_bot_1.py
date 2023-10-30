@@ -193,7 +193,6 @@ for ssh_info in ssh_info_list:
         runtime_hours = hours + minutes / 60 + seconds / 3600
         logging.info("Running Time: %d hours, %d minutes, %d seconds", hours, minutes, seconds)
         logging.info("Normal Blocks: %d", normal_blocks)
-        logging.info("Xuni Blocks: %d", xuni_blocks)
         logging.info("HashRate: %.2f", hash_rate)
 
         # Calculate Block/h and handle the case when runtime is zero
