@@ -200,8 +200,12 @@ for ssh_info in ssh_info_list:
         logging.info("Normal Blocks: %d", normal_blocks)
         logging.info("HashRate: %.2f", hash_rate)
         # Calculate Block/h and handle the case when runtime is zero
+    if normal_blocks is not None:
+        logging.info("Normal Blocks: %d", normal_blocks)
         block_per_hour = normal_blocks / runtime_hours if runtime_hours != 0 else 0
-
+    else:
+        logging.info("Normal Blocks: None")
+        block_per_hour = 0
         # Calculate Blocks/$ and handle the case when the number of blocks is zero
         blocks_per_dollar = (runtime_hours * dph_total) / normal_blocks if normal_blocks != 0 else 0
         
