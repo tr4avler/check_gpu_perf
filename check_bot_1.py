@@ -194,14 +194,8 @@ for ssh_info in ssh_info_list:
     if hash_rate is not None and hash_rate != 0:
         hash_rates.append(hash_rate)        
 
-    if normal_blocks is not None:
-        logging.info("Normal Blocks: %d", normal_blocks)
-        block_per_hour = normal_blocks / runtime_hours if runtime_hours != 0 else 0
-    else:
-        logging.info("Normal Blocks: None")
-        block_per_hour = 0
     
-    if hours is not None:
+    if hours is not None and normal_blocks is not None:
         runtime_hours = hours + minutes / 60 + seconds / 3600
         logging.info("Running Time: %d hours, %d minutes, %d seconds", hours, minutes, seconds)
         logging.info("Normal Blocks: %d", normal_blocks)
