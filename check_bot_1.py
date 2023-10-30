@@ -205,7 +205,7 @@ for ssh_info in ssh_info_list:
 
     if difficulties:
         mean_difficulty = sum(difficulties) / len(difficulties)
-        logging.info("Mean Difficulty: %.2f", mean_difficulty)
+        logging.info("Difficulty: %.2f", mean_difficulty)
     else:
         logging.info("No valid difficulties were found.")
 
