@@ -54,6 +54,10 @@ def instance_list():
 
         # Print information about each instance
         logging.info("Your Instances:")
+        
+        # Additional variables to store the total_dph for running machines        
+        total_dph_running_machines = 0
+        
         for instance in instances:
             instance_id = instance.get('id', 'N/A')
             gpu_name = instance.get('gpu_name', 'N/A')
@@ -62,6 +66,8 @@ def instance_list():
             ssh_port = instance.get('ssh_port', 'N/A')
             num_gpus = instance.get('num_gpus', 'N/A')
             cur_state = instance.get('cur_state', 'N/A')
+            if cur_state.lower() == 'running':
+                total_dph_running_machines += float(dph_total)
 
             logging.info("Instance ID: %s", instance_id)
             logging.info("GPU Name: %s", gpu_name)
@@ -85,7 +91,7 @@ def instance_list():
     else:
         logging.error("Failed to retrieve instances. Status code: %s. Response: %s", response.status_code, response.text)
 
-    return ssh_info_list
+    return ssh_info_list, total_dph_running_machines
 
 def clean_ansi_codes(input_string):
     ansi_escape = re.compile(r'\x1B[@-_][0-?]*[ -/]*[@-~]', re.IGNORECASE)
@@ -165,7 +171,7 @@ def print_table(data, mean_difficulty, average_dollars_per_normal_block, output_
 test_api_connection()
 
 # List Instances and Get SSH Information
-ssh_info_list = instance_list()
+ssh_info_list, total_dph_running_machines = instance_list()
 username = "root"
 
 # Store the data for the table
@@ -227,7 +233,6 @@ for ssh_info in ssh_info_list:
         total_dph = sum(dph_values)
     else:
         logging.info("No valid DPH values were found.")
-
     if dollars_per_normal_block_values:
         average_dollars_per_normal_block = sum(dollars_per_normal_block_values) / len(dollars_per_normal_block_values)
     else:
