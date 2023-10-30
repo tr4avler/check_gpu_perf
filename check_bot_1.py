@@ -61,12 +61,14 @@ def instance_list():
             ssh_host = instance.get('ssh_host', 'N/A')
             ssh_port = instance.get('ssh_port', 'N/A')
             num_gpus = instance.get('num_gpus', 'N/A')
+            cur_state = instance.get('cur_state', 'N/A')
 
             logging.info("Instance ID: %s", instance_id)
             logging.info("GPU Name: %s", gpu_name)
             logging.info("Dollars Per Hour (DPH): %s", dph_total)
             logging.info("SSH Command: ssh -p %s root@%s -L 8080:localhost:8080", ssh_port, ssh_host)
             logging.info("Number of GPUs: %s", num_gpus)
+            logging.info("Current state: %s", cur_state)
             logging.info("-" * 30)
 
             ssh_info = {
@@ -76,6 +78,7 @@ def instance_list():
                 'ssh_host': ssh_host,
                 'ssh_port': ssh_port,
                 'num_gpus': num_gpus
+                'cur_state': cur_state
             }
             ssh_info_list.append(ssh_info)
 
@@ -177,6 +180,7 @@ for ssh_info in ssh_info_list:
     instance_id = ssh_info['instance_id']
     gpu_name = ssh_info['gpu_name']
     num_gpus = ssh_info['num_gpus']
+    cur_state = ssh_info['cur_state']    
     dph_total = float(ssh_info['dph_total'])  # Convert DPH to float for calculations
     dph_values.append(dph_total)
     ssh_host = ssh_info['ssh_host']
