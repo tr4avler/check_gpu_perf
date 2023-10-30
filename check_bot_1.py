@@ -113,25 +113,25 @@ def get_log_info(ssh_host, ssh_port, username):
         last_line = clean_ansi_codes(last_line)
         
         # Parse the last line to get the required information
-        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*(?:Details=normal:(\d+)|Details=xuni:(\d+)).*Difficulty=(\d+).*\]')
+        pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*(?:Details=normal:(\d+)|Details=xuni:(\d+)).*HashRate:(\d+.\d+).*Difficulty=(\d+).*\]')
         match = pattern.search(last_line)
         if match:
             # Extracting the running time and normal blocks
-            hours, minutes, seconds, normal_blocks, xuni_blocks, difficulty = match.groups()
+            hours, minutes, seconds, normal_blocks, xuni_blocks, hash_rate, difficulty = match.groups()[-2:]
             blocks = int(normal_blocks) if normal_blocks is not None else int(xuni_blocks) if xuni_blocks is not None else None
             
             if blocks is not None:
-                return int(hours), int(minutes), int(seconds), blocks, int(difficulty)
+                return int(hours), int(minutes), int(seconds), blocks, float(hash_rate), int(difficulty)
             else:
                 logging.error("Failed to extract block information")
-                return None, None, None, None, None
+                return None, None, None, None, None, None
         else:
             logging.error("Failed to parse the log line")
-            return None, None, None, None, None
+            return None, None, None, None, None, None
         
     except Exception as e:
         logging.error("Failed to connect or retrieve log info: %s", e)
-        return None, None, None, None, None
+        return None, None, None, None, None, None
     
     finally:
         ssh.close()
@@ -141,7 +141,7 @@ from prettytable import PrettyTable
 def print_table(data, mean_difficulty, output_file='table_output.txt'):
     # Define the table and its columns
     table = PrettyTable()
-    table.field_names = ["Instance ID", "GPU Name", "GPU count", "DPH", "XNM Blocks", "Runtime (hours)", "Block/h", "$/Blocks"]
+    table.field_names = ["Instance ID", "GPU Name", "GPU count", "HashRate (h/s)", "DPH", "XNM Blocks", "Runtime (hours)", "Block/h", "$/Blocks"]
     
     # Add rows to the table to console
     for row in data:
@@ -183,7 +183,7 @@ for ssh_info in ssh_info_list:
     ssh_port = ssh_info['ssh_port']
 
     logging.info("Fetching log info for instance ID: %s", instance_id)
-    hours, minutes, seconds, normal_blocks, difficulty = get_log_info(ssh_host, ssh_port, username)
+    hours, minutes, seconds, normal_blocks, hash_rate, difficulty = get_log_info(ssh_host, ssh_port, username)
     
     if difficulty is not None and difficulty != 0:
         difficulties.append(difficulty)
@@ -199,7 +199,7 @@ for ssh_info in ssh_info_list:
         # Calculate Blocks/$ and handle the case when the number of blocks is zero
         blocks_per_dollar = (runtime_hours * dph_total) / normal_blocks if normal_blocks != 0 else 0
         
-        table_data.append([instance_id, gpu_name, num_gpus, round(dph_total, 4), normal_blocks, round(runtime_hours, 2), round(block_per_hour, 2), round(blocks_per_dollar, 2)])
+        table_data.append([instance_id, gpu_name, num_gpus, round(hash_rate, 2), round(dph_total, 4), normal_blocks, round(runtime_hours, 2), round(block_per_hour, 2), round(blocks_per_dollar, 2)])
     else:
         logging.error("Failed to retrieve log information for instance ID: %s", instance_id)
 
@@ -210,7 +210,7 @@ for ssh_info in ssh_info_list:
         logging.info("No valid difficulties were found.")
 
 # Sort the data by "Blocks/$" in increasing order
-table_data.sort(key=lambda x: x[7] if x[7] is not None else float('-inf'))
+table_data.sort(key=lambda x: x[8] if x[8] is not None else float('-inf'))
 
 # Print the table
 print_table(table_data, mean_difficulty)
