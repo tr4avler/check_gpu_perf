@@ -77,7 +77,7 @@ def instance_list():
                 'dph_total': dph_total,
                 'ssh_host': ssh_host,
                 'ssh_port': ssh_port,
-                'num_gpus': num_gpus
+                'num_gpus': num_gpus,
                 'cur_state': cur_state
             }
             ssh_info_list.append(ssh_info)
