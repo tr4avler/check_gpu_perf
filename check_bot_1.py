@@ -216,7 +216,7 @@ for ssh_info in ssh_info_list:
         total_hash_rate = sum(hash_rates)
     else:
         logging.info("No valid HashRate were found.")  
-   if dph_values:
+    if dph_values:
         total_dph = sum(dph_values)
     else:
         logging.info("No valid DPH values were found.")
