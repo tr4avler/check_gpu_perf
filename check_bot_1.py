@@ -170,6 +170,7 @@ table_data = []
 difficulties = []
 hash_rates = []
 dph_values = []
+dollars_per_normal_block_values = []
 
 # Fetch Log Information for Each Instance
 for ssh_info in ssh_info_list:
@@ -197,11 +198,13 @@ for ssh_info in ssh_info_list:
 
         # Calculate Block/h and handle the case when runtime is zero
         normal_block_per_hour = normal_blocks / runtime_hours if runtime_hours != 0 else 0
-        xuni_block_per_hour = xuni_blocks / runtime_hours if runtime_hours != 0 else 0
 
         # Calculate $/Blocks and handle the case when the number of blocks is zero
-        dollars_per_normal_block = (runtime_hours * dph_total) / normal_blocks if normal_blocks != 0 else 0
-        dollars_per_xuni_block = (runtime_hours * dph_total) / xuni_blocks if xuni_blocks != 0 else 0
+        if normal_blocks != 0:
+            dollars_per_normal_block = (runtime_hours * dph_total) / normal_blocks
+            dollars_per_normal_block_values.append(dollars_per_normal_block)
+        else:
+            dollars_per_normal_block = 0
         
         table_data.append([instance_id, gpu_name, num_gpus, round(hash_rate, 2), round(dph_total, 4), normal_blocks, round(runtime_hours, 2), round(normal_block_per_hour, 2), round(dollars_per_normal_block, 2)])        
     else:
@@ -221,7 +224,13 @@ for ssh_info in ssh_info_list:
         total_dph = sum(dph_values)
     else:
         logging.info("No valid DPH values were found.")
-        
+
+    if dollars_per_normal_block_values:
+        average_dollars_per_normal_block = sum(dollars_per_normal_block_values) / len(dollars_per_normal_block_values)
+        logging.info("Average $/Normal Block: %.2f", average_dollars_per_normal_block)
+    else:
+        average_dollars_per_normal_block = None
+        logging.info("No valid $/Normal Block values were found.")
 
 # Sort the data by "Blocks/$" in increasing order
 table_data.sort(key=lambda x: x[8] if x[8] is not None else float('-inf'))
