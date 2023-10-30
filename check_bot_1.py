@@ -88,6 +88,7 @@ def clean_ansi_codes(input_string):
     ansi_escape = re.compile(r'\x1B[@-_][0-?]*[ -/]*[@-~]', re.IGNORECASE)
     return ansi_escape.sub('', input_string)
 
+import re
 
 def get_log_info(ssh_host, ssh_port, username):
     private_key_path = "/home/admin/.ssh/id_ed25519"
@@ -115,8 +116,15 @@ def get_log_info(ssh_host, ssh_port, username):
         pattern = re.compile(r'Mining: (\d+) Blocks \[(\d+):(\d+):(\d+),.*(?:Details=normal:(\d+)|Details=xuni:(\d+)).*HashRate:(\d+.\d+).*Difficulty=(\d+).*\]')
         match = pattern.search(last_line)
         if match:
+            # Extracting the running time and normal blocks
             normal_blocks, hours, minutes, seconds, _, _, hash_rate, difficulty = match.groups()
-            return int(hours), int(minutes), int(seconds), int(normal_blocks), float(hash_rate), int(difficulty)
+            blocks = int(normal_blocks) if normal_blocks is not None else int(xuni_blocks) if xuni_blocks is not None else None
+            
+            if blocks is not None:
+                return int(hours), int(minutes), int(seconds), blocks, float(hash_rate), int(difficulty)
+            else:
+                logging.error("Failed to extract block information")
+                return None, None, None, None, None, None
         else:
             logging.error("Failed to parse the log line")
             return None, None, None, None, None, None
