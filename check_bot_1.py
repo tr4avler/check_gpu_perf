@@ -112,9 +112,8 @@ def get_log_info(ssh_host, ssh_port, username):
         # Clean ANSI codes from the log line
         last_line = clean_ansi_codes(last_line)
         
-        # Updated regex pattern to make "blocks per second" and "Details" parts optional
+        # Parse the last line to get the required information
         pattern = re.compile(r'Mining:.*\[(\d+):(\d+):(\d+),.*(?:\? Blocks/s|.*(?:Details=normal:(\d+)|Details=xuni:(\d+))).*HashRate:(\d+.\d+).*Difficulty=(\d+).*\]')
-        
         match = pattern.search(last_line)
         if match:
             # Extracting the running time and blocks information
@@ -193,13 +192,14 @@ for ssh_info in ssh_info_list:
         difficulties.append(difficulty)
     if hash_rate is not None and hash_rate != 0:
         hash_rates.append(hash_rate)        
-
     
-    if hours is not None and normal_blocks is not None:
+    if hours is not None:
         runtime_hours = hours + minutes / 60 + seconds / 3600
         logging.info("Running Time: %d hours, %d minutes, %d seconds", hours, minutes, seconds)
         logging.info("Normal Blocks: %d", normal_blocks)
         logging.info("HashRate: %.2f", hash_rate)
+        # Calculate Block/h and handle the case when runtime is zero
+        block_per_hour = normal_blocks / runtime_hours if runtime_hours != 0 else 0
 
         # Calculate Blocks/$ and handle the case when the number of blocks is zero
         blocks_per_dollar = (runtime_hours * dph_total) / normal_blocks if normal_blocks != 0 else 0
