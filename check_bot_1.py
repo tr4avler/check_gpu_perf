@@ -41,19 +41,6 @@ private_key_path = "/home/your_username/.ssh/id_ed25519"
 # Example: passphrase = "your_passphrase"
 passphrase = ""
 
-####### Table printout configuration ####### 
-
-# Column index by which the table should be sorted.
-# Note: Column indices start at 0. So, for example, to sort by the first column, set this value to 0.
-# Default: 11 (Assumes "USD/Block" to sort by.)
-sort_column_index = 11
-
-# Order in which the table should be sorted.
-# Options: 
-#   - 'ascending': Sort from smallest to largest.
-#   - 'descending': Sort from largest to smallest.
-# Default: 'ascending'
-sort_order = 'ascending'
 
 ####### End of user configuration ####### 
 
@@ -279,18 +266,6 @@ for ssh_info in ssh_info_list:
         
         hash_rate_per_gpu = hash_rate / float(num_gpus) if num_gpus != 'N/A' and hash_rate is not None else 'N/A'
         
-        # Sort the data by "Blocks/$" in increasing order
-        if not table_data:
-            print("Error: table_data is empty!")
-        elif sort_column_index < 0 or (table_data and sort_column_index >= len(table_data[0])):
-            print("Invalid sort_column_index: {}. Must be between 0 and {}.".format(sort_column_index, len(table_data[0])-1 if table_data else 'N/A'))
-        else:
-            if all(len(row) > sort_column_index for row in table_data):
-                table_data.sort(key=lambda x: (x[sort_column_index] if x[sort_column_index] is not None else float('-inf'), x), 
-                                reverse=(sort_order == 'descending'))
-            else:
-                print("Error: Not all rows have enough columns for sort_column_index {}".format(sort_column_index))
-        
         table_data.append([instance_id, gpu_name, num_gpus, round(dph_total, 4), round(usd_per_gpu, 4), round(hash_rate, 2), round(hash_rate_per_gpu, 2), normal_blocks, round(runtime_hours, 2), round(normal_block_per_hour, 2), round(hash_rate_per_usd, 2), round(dollars_per_normal_block, 2)])        
     else:
         logging.error("Failed to retrieve log information or normal blocks is None for instance ID: %s", instance_id)
@@ -314,12 +289,11 @@ for ssh_info in ssh_info_list:
         average_dollars_per_normal_block = None
         logging.info("No valid $/Block values were found.")
 
-
+# Sort the data by "Blocks/$" in increasing order
+table_data.sort(key=lambda x: x[11] if x[11] is not None else float('-inf'))
 
 # Print the table
 print_table(table_data, mean_difficulty, average_dollars_per_normal_block, total_dph_running_machines, usd_per_gpu, hash_rate_per_gpu, hash_rate_per_usd)
-
-
 
 # Exit the script
 sys.exit()
