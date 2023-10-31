@@ -34,7 +34,7 @@ API_KEY_FILE = 'api_key.txt'
 # Example for Windows: r"C:/Users/your_username/.ssh/id_ed25519"
 # Example for Linux/Mac: "/home/your_username/.ssh/id_ed25519"
 # Example for Mac: "/Users/your_username/.ssh/id_ed25519"
-private_key_path = "/home/your_username/.ssh/id_ed25519"
+private_key_path = "/home/admin/.ssh/id_ed25519"
 
 # If your private SSH key is protected by a passphrase, provide it here.
 # If not, leave this as an empty string ("").
