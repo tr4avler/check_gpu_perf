@@ -34,7 +34,7 @@ API_KEY_FILE = 'api_key.txt'
 # Example for Windows: r"C:/Users/your_username/.ssh/id_ed25519"
 # Example for Linux/Mac: "/home/your_username/.ssh/id_ed25519"
 # Example for Mac: "/Users/your_username/.ssh/id_ed25519"
-private_key_path = "/home/admin/.ssh/id_ed25519"
+private_key_path = "/home/your_username/.ssh/id_ed25519"
 
 # If your private SSH key is protected by a passphrase, provide it here.
 # If not, leave this as an empty string ("").
@@ -303,12 +303,16 @@ for ssh_info in ssh_info_list:
         logging.info("No valid $/Block values were found.")
 
 # Sort the data by "Blocks/$" in increasing order
-if sort_column_index < 0 or sort_column_index >= len(table_data[0]):
-    print("Invalid sort_column_index: {}. Must be between 0 and {}.".format(sort_column_index, len(table_data[0])-1))
-else:
-    table_data.sort(key=lambda x: (x[sort_column_index] if x[sort_column_index] is not None else float('-inf'), x), 
-                    reverse=(sort_order == 'descending'))
-
+    if not table_data:
+        print("Error: table_data is empty!")
+    elif sort_column_index < 0 or (table_data and sort_column_index >= len(table_data[0])):
+        print("Invalid sort_column_index: {}. Must be between 0 and {}.".format(sort_column_index, len(table_data[0])-1 if table_data else 'N/A'))
+    else:
+        if all(len(row) > sort_column_index for row in table_data):
+            table_data.sort(key=lambda x: (x[sort_column_index] if x[sort_column_index] is not None else float('-inf'), x), 
+                            reverse=(sort_order == 'descending'))
+        else:
+            print("Error: Not all rows have enough columns for sort_column_index {}".format(sort_column_index))
 # Print the table
 print_table(table_data, mean_difficulty, average_dollars_per_normal_block, total_dph_running_machines, usd_per_gpu, hash_rate_per_gpu, hash_rate_per_usd)
 
