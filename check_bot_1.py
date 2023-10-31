@@ -302,6 +302,10 @@ for ssh_info in ssh_info_list:
         average_dollars_per_normal_block = None
         logging.info("No valid $/Block values were found.")
 
+
+# Print the table
+print_table(table_data, mean_difficulty, average_dollars_per_normal_block, total_dph_running_machines, usd_per_gpu, hash_rate_per_gpu, hash_rate_per_usd)
+
 # Sort the data by "Blocks/$" in increasing order
     if not table_data:
         print("Error: table_data is empty!")
@@ -313,8 +317,6 @@ for ssh_info in ssh_info_list:
                             reverse=(sort_order == 'descending'))
         else:
             print("Error: Not all rows have enough columns for sort_column_index {}".format(sort_column_index))
-# Print the table
-print_table(table_data, mean_difficulty, average_dollars_per_normal_block, total_dph_running_machines, usd_per_gpu, hash_rate_per_gpu, hash_rate_per_usd)
 
 # Exit the script
 sys.exit()
