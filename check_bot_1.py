@@ -149,7 +149,7 @@ def clean_ansi_codes(input_string):
     ansi_escape = re.compile(r'\x1B[@-_][0-?]*[ -/]*[@-~]', re.IGNORECASE)
     return ansi_escape.sub('', input_string)
 
-def get_log_info(ssh_host, ssh_port, username):
+def get_log_info(ssh_host, ssh_port, username, passphrase):
 
     # Create an SSH client
     ssh = paramiko.SSHClient()
