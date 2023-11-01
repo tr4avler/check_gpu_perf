@@ -32,7 +32,7 @@ API_KEY_FILE = 'api_key.txt'
 #   - Windows: Use a raw string (prefix the string with 'r') to ensure backslashes are treated literally, not as escape characters.
 #   - Linux/Mac: Use a standard string with forward slashes.
 # Example for Windows: r"C:/Users/your_username/.ssh/id_ed25519"
-# Example for Linux/Mac: "/home/your_username/.ssh/id_ed25519"
+# Example for Linux: "/home/your_username/.ssh/id_ed25519"
 # Example for Mac: "/Users/your_username/.ssh/id_ed25519"
 private_key_path = "/home/admin/.ssh/id_ed25519"
 
@@ -117,6 +117,7 @@ def instance_list():
             ssh_host = instance.get('ssh_host', 'N/A')
             ssh_port = instance.get('ssh_port', 'N/A')
             num_gpus = instance.get('num_gpus', 'N/A')
+            label = instance.get('label', 'N/A')
             actual_status = instance.get('actual_status', 'N/A')
             if actual_status.lower() == 'running':
                 total_dph_running_machines += float(dph_total)
@@ -136,7 +137,8 @@ def instance_list():
                 'ssh_host': ssh_host,
                 'ssh_port': ssh_port,
                 'num_gpus': num_gpus,
-                'actual_status': actual_status
+                'actual_status': actual_status,
+                'label': label
             }
             ssh_info_list.append(ssh_info)
 
@@ -196,10 +198,10 @@ def get_log_info(ssh_host, ssh_port, username):
 
 
 from prettytable import PrettyTable      
-def print_table(data, mean_difficulty, average_dollars_per_normal_block, total_dph_running_machines, usd_per_gpu, hash_rate_per_gpu, hash_rate_per_usd, output_file='table_output.txt'):
+def print_table(data, mean_difficulty, average_dollars_per_normal_block, total_dph_running_machines, usd_per_gpu, hash_rate_per_gpu, hash_rate_per_usd, label, output_file='table_output.txt'):
     # Define the table and its columns
     table = PrettyTable()
-    table.field_names = ["Instance ID", "GPU Name", "GPU's", "USD/h", "USD/GPU", "Instance h/s", "GPU h/s", "XNM Blocks", "Runtime", "Block/h", "h/s/USD", "USD/Block"]
+    table.field_names = ["Instance ID", "GPU Name", "GPU's", "USD/h", "USD/GPU", "Instance h/s", "GPU h/s", "XNM Blocks", "Runtime", "Block/h", "h/s/USD", "USD/Block", "Label"]
 
     
     # Add rows to the table to console
@@ -239,7 +241,8 @@ for ssh_info in ssh_info_list:
     instance_id = ssh_info['instance_id']
     gpu_name = ssh_info['gpu_name']
     num_gpus = ssh_info['num_gpus']
-    actual_status = ssh_info['actual_status']    
+    actual_status = ssh_info['actual_status']
+    label = ssh_info['label']        
     dph_total = float(ssh_info['dph_total'])  # Convert DPH to float for calculations
     dph_values.append(dph_total)
     ssh_host = ssh_info['ssh_host']
@@ -280,7 +283,7 @@ for ssh_info in ssh_info_list:
         
         hash_rate_per_gpu = hash_rate / float(num_gpus) if num_gpus != 'N/A' and hash_rate is not None else 'N/A'
         
-        table_data.append([instance_id, gpu_name, num_gpus, round(dph_total, 4), round(usd_per_gpu, 4), round(hash_rate, 2), round(hash_rate_per_gpu, 2), normal_blocks, round(runtime_hours, 2), round(normal_block_per_hour, 2), round(hash_rate_per_usd, 2), round(dollars_per_normal_block, 2)])        
+        table_data.append([instance_id, gpu_name, num_gpus, round(dph_total, 4), round(usd_per_gpu, 4), round(hash_rate, 2), round(hash_rate_per_gpu, 2), normal_blocks, round(runtime_hours, 2), round(normal_block_per_hour, 2), round(hash_rate_per_usd, 2), round(dollars_per_normal_block, 2), label])        
     else:
         logging.error("Failed to retrieve log information or normal blocks is None for instance ID: %s", instance_id)
 
@@ -315,7 +318,7 @@ for ssh_info in ssh_info_list:
         else:
             print("Error: Not all rows have enough columns for sort_column_index {}".format(sort_column_index))
 # Print the table
-print_table(table_data, mean_difficulty, average_dollars_per_normal_block, total_dph_running_machines, usd_per_gpu, hash_rate_per_gpu, hash_rate_per_usd)
+print_table(table_data, mean_difficulty, average_dollars_per_normal_block, total_dph_running_machines, usd_per_gpu, hash_rate_per_gpu, hash_rate_per_usd, label)
 
 # Exit the script
 sys.exit()
