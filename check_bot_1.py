@@ -242,7 +242,7 @@ for ssh_info in ssh_info_list:
     gpu_name = ssh_info['gpu_name']
     num_gpus = ssh_info['num_gpus']
     actual_status = ssh_info['actual_status']
-    label = ssh_info['label']        
+    label = ssh_info['label'] if ssh_info['label'] is not None else ''       
     dph_total = float(ssh_info['dph_total'])  # Convert DPH to float for calculations
     dph_values.append(dph_total)
     ssh_host = ssh_info['ssh_host']
