@@ -190,16 +190,26 @@ def clean_ansi_codes(input_string):
     ansi_escape = re.compile(r'\x1B[@-_][0-?]*[ -/]*[@-~]', re.IGNORECASE)
     return ansi_escape.sub('', input_string)
 
-def get_log_info(ssh_host, ssh_port, username):
+import paramiko
+import logging
+import re
 
+def get_log_info(ssh_host, ssh_port, username, private_key_path, passphrase=None):
     # Create an SSH client
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     
     try:
-        # Load the private key
-        key = paramiko.Ed25519Key(filename=private_key_path, password=passphrase)
-        
+        # Attempt to load the private key with the provided passphrase
+        try:
+            key = paramiko.Ed25519Key(filename=private_key_path, password=passphrase)
+        except paramiko.ssh_exception.PasswordRequiredException:
+            logging.error("Private key file is encrypted and requires a passphrase.")
+            return None, None, None, None, None, None, None, None
+        except paramiko.ssh_exception.SSHException as e:
+            logging.error("Failed to decrypt private key with provided passphrase: %s", e)
+            return None, None, None, None, None, None, None, None
+
         # Connect to the server
         ssh.connect(ssh_host, port=ssh_port, username=username, pkey=key)
         
@@ -320,7 +330,7 @@ for ssh_info in ssh_info_list:
     ssh_port = ssh_info['ssh_port']
 
     logging.info("Fetching log info for instance ID: %s", instance_id)
-    hours, minutes, seconds, super_blocks, normal_blocks, xuni_blocks, hash_rate, difficulty = get_log_info(ssh_host, ssh_port, username)
+    hours, minutes, seconds, super_blocks, normal_blocks, xuni_blocks, hash_rate, difficulty = get_log_info(ssh_host, ssh_port, username, private_key_path)
 
     if num_gpus != 'N/A' and dph_total != 'N/A':
         usd_per_gpu = round(dph_total / float(num_gpus), 4)
