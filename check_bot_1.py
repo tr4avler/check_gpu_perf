@@ -241,6 +241,9 @@ def get_log_info(ssh_host, ssh_port, username):
 
      
 def print_table(data, mean_difficulty, average_dollars_per_normal_block, total_dph_running_machines, usd_per_gpu, hash_rate_per_gpu, hash_rate_per_usd, label, sum_normal_block_per_hour, total_hash_rate, output_file='table_output.txt'):
+    if not data:  # If data list is empty, do not proceed.
+        print("No data to print.")
+        return
     # Define the table and its columns
     table = PrettyTable()
     table.field_names = ["Instance ID", "GPU Name", "GPU's", "USD/h", "USD/GPU", "Instance h/s", "GPU h/s", "XNM Blocks", "Runtime", "Block/h", "h/s/USD", "USD/Block", "Label"]
