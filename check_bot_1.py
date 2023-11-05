@@ -330,7 +330,7 @@ for ssh_info in ssh_info_list:
     ssh_port = ssh_info['ssh_port']
 
     logging.info("Fetching log info for instance ID: %s", instance_id)
-    hours, minutes, seconds, super_blocks, normal_blocks, xuni_blocks, hash_rate, difficulty = get_log_info(ssh_host, ssh_port, username, private_key_path)
+    hours, minutes, seconds, super_blocks, normal_blocks, xuni_blocks, hash_rate, difficulty = get_log_info(ssh_host, ssh_port, username, private_key_path, passphrase)
 
     if num_gpus != 'N/A' and dph_total != 'N/A':
         usd_per_gpu = round(dph_total / float(num_gpus), 4)
