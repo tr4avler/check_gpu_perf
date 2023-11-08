@@ -39,7 +39,7 @@ API_KEY_FILE = 'api_key.txt'
 # Example for Windows: r"C:/Users/your_username/.ssh/id_ed25519"
 # Example for Linux: "/home/your_username/.ssh/id_ed25519"
 # Example for Mac: "/Users/your_username/.ssh/id_ed25519"
-private_key_path = "/home/admin/.ssh/id_ed25519"
+private_key_path = r"C:/Users/lkss/.ssh/id_ed25519"
 
 # If your private SSH key is protected by a passphrase, provide it here.
 # If not, leave this as an empty string ("").
@@ -200,8 +200,8 @@ def instance_list():
 def calculate_time_covered_by_balance(balance, total_dph):
     # Calculate the total daily cost by multiplying the hourly cost by 24
     daily_cost = total_dph * 24
-    # Add a 2% fee to the total daily cost
-    daily_cost_with_fee = daily_cost * 1.02  # 2% fee
+    # Add a 1% fee disk space cost to the total daily cost
+    daily_cost_with_fee = daily_cost * 1.01  # 1% fee
     # Calculate the number of days the balance will last
     days_covered = balance / daily_cost_with_fee
     # Extract the whole days
@@ -228,10 +228,9 @@ def check_vastai_balance(api_key, total_dph_running_machines):
         balance = data.get('credit', None)
         if balance is not None:
             balance = float(balance)  # Ensure the balance is a float
-            # Calculate the total daily cost with fee
             hourly_cost = total_dph_running_machines
             daily_cost = hourly_cost * 24
-            daily_cost_with_fee = daily_cost * 1.02  # Calculate this inside the function
+            daily_cost_with_fee = daily_cost * 1.01  
             # Display the balance and estimated spend rate
             print(f"Your Vast.ai balance is: ${balance:.2f}")
             print(f"Your estimated spend rate: ${daily_cost_with_fee:.2f}/day")
